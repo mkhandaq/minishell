@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <readline/readline.h>
 #include <readline/history.h>
-#include "lib/libft.h"
+#include "libft/libft.h"
 #include "printf/printf.h"
 
 typedef enum e_toktype {
