@@ -25,9 +25,9 @@ static void	split_sign_node(t_token **list)
 		new = malloc(sizeof(t_token));
 		if (!new)
 			return ;
-		if(is_one_sided(tmp) && ft_strlen(tmp->value) > 1)
+		if(return_sign_len(tmp) == 1 && ft_strlen(tmp->value) > 1)
 			new->value = ft_strdup(tmp->value + 1);
-		else if(is_two_sided(tmp) && ft_strlen(tmp->value) > 2)
+		else if(return_sign_len(tmp) == 2 && ft_strlen(tmp->value) > 2)
 			new->value = ft_strdup(tmp->value + 2);
 		else
 		{
@@ -53,6 +53,7 @@ static void	split_sign_node_loop(t_token **list)
 		tmp = tmp->next;
 	}
 }
+
 
 void	set_types(t_token **list)
 {

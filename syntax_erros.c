@@ -70,17 +70,3 @@ int	check_syntax_errors(t_token *node)
 		return (0);
 	return (1);
 }
-
-
-
-
-
-
-
-
-
-/*
-
-if(node == sign)
-
-*/

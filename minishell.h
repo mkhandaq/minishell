@@ -35,5 +35,6 @@ int		is_two_sided(t_token *node);
 int		is_sign(t_token *node);
 int		is_one_sided(t_token *node);
 int		check_syntax_errors(t_token *node);
+int		return_sign_len(t_token *node);
 
 #endif

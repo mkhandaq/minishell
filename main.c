@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mkhandaq <mkhandaq@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 19:20:34 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/02/08 19:43:54 by marvin           ###   ########.fr       */
+/*   Updated: 2026/02/09 14:30:02 by mkhandaq         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,17 @@ static void	free_2d(char **argv)
 	free(argv);
 }
 
+void printlist(t_token *node)
+{
+	t_token *tmp = node;
+	while (tmp)
+	{
+		ft_printf("[%s] -> ", tmp -> value);
+		tmp = tmp->next;
+	}
+	ft_printf("\n");
+}
+
 static void	shell_loop()
 {
 	char	*input;
@@ -85,6 +96,7 @@ static void	shell_loop()
 		set_list(&node, splited);
 		set_types(&node);
 		print_types(node);
+		printlist(node);
 		free(input);
 		free_2d(splited);
 		free_list(&node);
