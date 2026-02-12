@@ -8,6 +8,7 @@
 #include <readline/history.h>
 #include "libft/libft.h"
 #include "printf/printf.h"
+#include "get_next_line.h"
 
 typedef enum e_toktype {
 	TOK_CMD,
@@ -18,7 +19,9 @@ typedef enum e_toktype {
 	TOK_REDIR_IN,
 	TOK_REDIR_OUT,
 	TOK_REDIR_APPEND,
-	TOK_HEREDOC
+	TOK_HEREDOC,
+	TOK_INFILE,
+	TOK_OUTFILE
 } t_toktype;
 
 typedef struct s_token {
@@ -30,6 +33,7 @@ typedef struct s_token {
 void	set_list(t_token **list, char **argv);
 void 	set_sign(t_token **node);
 void	set_types(t_token **list);
+void    process_heredocs(t_token *list);
 
 int		is_two_sided(t_token *node);
 int		is_sign(t_token *node);

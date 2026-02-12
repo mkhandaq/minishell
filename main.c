@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkhandaq <mkhandaq@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ialausud <ialausud@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 19:20:34 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/02/09 14:30:02 by mkhandaq         ###   ########.fr       */
+/*   Updated: 2026/02/10 21:11:21 by ialausud         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,12 @@ void	print_types(t_token	*node)
 			ft_printf("[TOK_REDIR_OUT] ");
 		else if(node->type == TOK_HEREDOC)
 			ft_printf("[HEREDOC] ");
+		// here is some edits by me to print the types of the nodes after the signs
+			// so here we print the types of the nodes after the signs
+		else if(node->type == TOK_INFILE)
+			ft_printf("[INFILE] ");
+		else if(node->type == TOK_OUTFILE)
+			ft_printf("[OUTFILE] ");
 		if(node->next)
 			ft_printf("-> ");
 		node = node->next;
@@ -95,6 +101,7 @@ static void	shell_loop()
 		splited = ft_split(input, ' ');
 		set_list(&node, splited);
 		set_types(&node);
+		process_heredocs(node);
 		print_types(node);
 		printlist(node);
 		free(input);
