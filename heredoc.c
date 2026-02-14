@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkhandaq <mkhandaq@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ialausud <ialausud@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 20:36:47 by ialausud          #+#    #+#             */
-/*   Updated: 2026/02/11 19:22:35 by mkhandaq         ###   ########.fr       */
+/*   Updated: 2026/02/14 19:34:05 by ialausud         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,16 +43,19 @@ void    process_heredocs(t_token *list)
     while (tmp)
     {
         if (tmp->type == TOK_HEREDOC
-            && tmp->next && tmp->next->type == TOK_OUTFILE)
+            && tmp->next && tmp->next->type == TOK_LIMITER)
         {
             limiter = tmp->next->value;
             filename = gen_heredoc_name();
             if (!filename)
+            {
+                perror("heredoc filename");
                 return;
-
+            }
             fd = open(filename, O_CREAT | O_WRONLY | O_TRUNC, 0644);
             if (fd == -1)
             {
+                perror("heredoc open");
                 free(filename);
                 return;
             }
@@ -70,20 +73,11 @@ void    process_heredocs(t_token *list)
                 free(line);
             }
             close(fd);
-
-            //tmp->type = TOK_REDIR_IN; // we change the type of the current node to TOK_REDIR_IN because we will treat it as a regular input redirection in the execution phase
-                                        // we set the value of the next node to the name of the temporary file
+            tmp->type = TOK_REDIR_IN;
+            tmp->next->type = TOK_INFILE;
             free(tmp->next->value);
             tmp->next->value = filename;
         }
         tmp = tmp->next;
-    }
-    fd = open (filename, O_RDONLY);
-    line = get_next_line(fd);
-    while (line)
-    {
-        ft_printf("%s", line);
-        free(line);
-        line = get_next_line(fd);
     }
 }

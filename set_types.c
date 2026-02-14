@@ -144,6 +144,8 @@ void	set_types(t_token **list)
 		{
 			if(tmp->type == TOK_REDIR_IN)
 				tmp->next->type = TOK_INFILE;
+			else if (tmp->type == TOK_HEREDOC)
+				tmp->next->type = TOK_LIMITER;
 			else
 				tmp->next->type = TOK_OUTFILE;
 		}

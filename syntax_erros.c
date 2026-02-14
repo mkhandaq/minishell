@@ -46,6 +46,13 @@ static int	check_one_sided(t_token *node)
 	t_token *tmp;
 
 	tmp = node;
+	if (tmp->type == TOK_HEREDOC && is_sign(tmp->next))
+	{
+	    ft_printf("shellGuys: syntax error near unexpected token '%s'\n",
+	              tmp->next->value);
+	    return (0);
+	}
+
 	while(tmp && tmp->next)
 	{
 		if(is_one_sided(tmp) && is_sign(tmp->next))

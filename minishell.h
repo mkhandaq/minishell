@@ -21,7 +21,10 @@ typedef enum e_toktype {
 	TOK_REDIR_APPEND,
 	TOK_HEREDOC,
 	TOK_INFILE,
-	TOK_OUTFILE
+	TOK_OUTFILE,
+	TOK_LIMITER,
+	TOK_OPENBRC,
+	TOK_CLOSEBRC
 } t_toktype;
 
 typedef struct s_token {

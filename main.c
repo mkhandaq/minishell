@@ -6,7 +6,7 @@
 /*   By: ialausud <ialausud@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 19:20:34 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/02/10 21:11:21 by ialausud         ###   ########.fr       */
+/*   Updated: 2026/02/14 19:37:15 by ialausud         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,13 +92,13 @@ static void	shell_loop()
 	char	**splited;
 	t_token	*node;
 
-	node = NULL;
 	while(1)
 	{
 		input = readline("shellGuys$ ");
 		if (!input)
 			return ;
 		splited = ft_split(input, ' ');
+		node = NULL;
 		set_list(&node, splited);
 		set_types(&node);
 		process_heredocs(node);
