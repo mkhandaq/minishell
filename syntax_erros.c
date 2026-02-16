@@ -12,6 +12,62 @@
 
 #include "minishell.h"
 
+static int	is_closed(t_token *node)
+{
+	t_token	*tmp;
+	int		count_open;
+
+	tmp = node;
+	count_open = 0;
+	while(tmp)
+	{
+		if(tmp->type == TOK_OPENBRC)
+			count_open++;
+		tmp = tmp->next;
+	}
+	tmp = node;
+	while(tmp)
+	{
+		if(tmp->type == TOK_CLOSEBRC)
+			count_open--;
+		tmp = tmp->next;	
+	}
+	if(count_open)
+		return (0);
+	return (1);
+}
+
+static int	check_brackets(t_token *node)
+{
+	t_token *tmp;
+
+	tmp = node;
+	if(!is_closed(tmp))
+	{
+		ft_printf("shellGuys: CLOSE THAT BRACKET\n");
+		return (0);
+	}
+	while(tmp && tmp->next)
+	{
+		if(tmp->type == TOK_CLOSEBRC || tmp->type == TOK_OPENBRC)
+		{
+			if(is_two_sided(tmp->next))
+			{
+				ft_printf("shellGuys: parse error near `%s'\n", tmp->next->value);
+				return (0);
+			}
+			if(tmp->type == TOK_OPENBRC && tmp->next->type == TOK_CLOSEBRC)
+			{
+				ft_printf("shellGuys: EMPTY BRACKET\n");
+				return (0);
+			}
+		}
+		tmp = tmp->next;
+	}
+	return (0);
+}
+
+
 static int	check_two_sided(t_token *node)
 {
 	t_token *tmp;
@@ -73,7 +129,7 @@ static int	check_one_sided(t_token *node)
 
 int	check_syntax_errors(t_token *node)
 {
-	if (!check_two_sided(node) || !check_one_sided(node))
+	if (!check_two_sided(node) || !check_one_sided(node) || check_brackets(node))
 		return (0);
 	return (1);
 }

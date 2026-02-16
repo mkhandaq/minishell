@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ialausud <ialausud@student.42amman.com>    +#+  +:+       +#+        */
+/*   By: mkhandaq <mkhandaq@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 19:20:34 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/02/14 19:37:15 by ialausud         ###   ########.fr       */
+/*   Updated: 2026/02/16 18:11:18 by mkhandaq         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ void	print_types(t_token	*node)
 		else if(node->type == TOK_REDIR_IN)
 			ft_printf("[REDIR_IN] ");
 		else if(node->type == TOK_REDIR_OUT)
-			ft_printf("[TOK_REDIR_OUT] ");
+			ft_printf("[REDIR_OUT] ");
 		else if(node->type == TOK_HEREDOC)
 			ft_printf("[HEREDOC] ");
 		// here is some edits by me to print the types of the nodes after the signs
@@ -41,6 +41,12 @@ void	print_types(t_token	*node)
 			ft_printf("[INFILE] ");
 		else if(node->type == TOK_OUTFILE)
 			ft_printf("[OUTFILE] ");
+		else if(node->type == TOK_LIMITER)
+			ft_printf("[LIMITER] ");
+		else if(node->type == TOK_OPENBRC)
+			ft_printf("[OPENBRC] ");
+		else if(node->type == TOK_CLOSEBRC)
+			ft_printf("[CLOSEBRC] ");
 		if(node->next)
 			ft_printf("-> ");
 		node = node->next;
@@ -80,7 +86,32 @@ void printlist(t_token *node)
 	t_token *tmp = node;
 	while (tmp)
 	{
-		ft_printf("[%s] -> ", tmp -> value);
+		if(is_sign(tmp))
+		{
+			if(tmp->type == TOK_AND)
+				ft_printf("[&&] ");
+			else if(tmp->type == TOK_OR)
+				ft_printf("[||] ");
+			else if(tmp->type == TOK_PIPE)
+				ft_printf("[|] ");
+			else if(tmp->type == TOK_REDIR_APPEND)
+				ft_printf("[>>] ");
+			else if(tmp->type == TOK_REDIR_IN)
+				ft_printf("[<] ");
+			else if(tmp->type == TOK_REDIR_OUT)
+				ft_printf("[>] ");
+			else if(tmp->type == TOK_HEREDOC)
+				ft_printf("[<<] ");
+			else if(tmp->type == TOK_OPENBRC)
+				ft_printf("[(] ");
+			else if(tmp->type == TOK_CLOSEBRC)
+				ft_printf("[)] ");
+				
+		}
+		else
+			ft_printf("[%s] ", tmp->value);
+		if(tmp->next)
+			ft_printf("-> ");
 		tmp = tmp->next;
 	}
 	ft_printf("\n");

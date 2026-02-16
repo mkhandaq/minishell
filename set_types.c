@@ -12,6 +12,34 @@
 
 #include "minishell.h"
 
+
+static void	set_splited_nodes(char *root, char **str1, char **str2)
+{
+	int	i;
+	int	len;
+
+	i = 0;
+	if(!root)
+		return ;
+	while(root[i] && !(ft_strchr("|&<>()", root[i])))
+		i++;
+	*str2 = malloc(i + 1);
+	ft_memcpy(*str2, root, i);
+	(*str2)[i] = '\0';
+	len = ft_strlen(root + i);
+	*str1 = malloc(len + 1);
+	if(!*str1)
+	{
+		free(*str2);
+		*str2 = NULL;
+		free(root);
+		return ;
+	}
+	ft_memcpy(*str1, root + i, len);
+	(*str1)[len] = '\0';	
+	free(root);
+}
+
 static void	split_sign_node(t_token **list)
 {
 	t_token *tmp;
@@ -42,33 +70,6 @@ static void	split_sign_node(t_token **list)
 	}
 }
 
-static void	set_splited_nodes(char *root, char **str1, char **str2)
-{
-	int	i;
-	int	len;
-
-	i = 0;
-	if(!root)
-		return ;
-	while(root[i] && !(ft_strchr("|&<>", root[i])))
-		i++;
-	*str2 = malloc(i + 1);
-	ft_memcpy(*str2, root, i);
-	(*str2)[i] = '\0';
-	len = ft_strlen(root + i);
-	*str1 = malloc(len + 1);
-	if(!*str1)
-	{
-		free(*str2);
-		*str2 = NULL;
-		free(root);
-		return ;
-	}
-	ft_memcpy(*str1, root + i, len);
-	(*str1)[len] = '\0';	
-	free(root);
-}
-
 static int	split_nonsign_node(t_token **list)
 {
 	t_token	*tmp;
@@ -81,7 +82,8 @@ static int	split_nonsign_node(t_token **list)
 	if(!is_sign(tmp))
 	{
 		if(ft_strchr(tmp->value, '|') || ft_strchr(tmp->value, '&')
-			|| ft_strchr(tmp->value, '<') || ft_strchr(tmp->value, '>'))
+			|| ft_strchr(tmp->value, '<') || ft_strchr(tmp->value, '>')
+			|| ft_strchr(tmp->value, '(') || ft_strchr(tmp->value, ')'))
 		{
 			new = malloc(sizeof(t_token));
 			if (!new)

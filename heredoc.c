@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ialausud <ialausud@student.42amman.com>    +#+  +:+       +#+        */
+/*   By: mkhandaq <mkhandaq@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 20:36:47 by ialausud          #+#    #+#             */
-/*   Updated: 2026/02/14 19:34:05 by ialausud         ###   ########.fr       */
+/*   Updated: 2026/02/15 20:20:16 by mkhandaq         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,8 +73,8 @@ void    process_heredocs(t_token *list)
                 free(line);
             }
             close(fd);
-            tmp->type = TOK_REDIR_IN;
-            tmp->next->type = TOK_INFILE;
+            tmp->type = TOK_HEREDOC;
+            tmp->next->type = TOK_LIMITER;
             free(tmp->next->value);
             tmp->next->value = filename;
         }
