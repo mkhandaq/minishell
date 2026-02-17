@@ -1,0 +1,15 @@
+the brackets can not be after a command or a keyword
+
+the open bracket can be after tow sided sign
+
+the close bracket can be before tow sided sign
+
+the close bracket can be before one sided sign
+
+the open bracket can not be after one sided sign
+
+
+(ls) (pwd)
+(ls)(pwd)
+(ls|)
+(> file)

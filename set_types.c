@@ -62,7 +62,8 @@ static void	split_sign_node(t_token **list)
 			free(new);
 			return ;
 		}
-		set_sign(&new);
+		if(!set_sign(&new))
+			new->type = TOK_CMD;
 		if(tmp->next)
 			tmp_ptr = tmp->next;
 		tmp->next = new;

@@ -19,18 +19,13 @@ static int	is_closed(t_token *node)
 
 	tmp = node;
 	count_open = 0;
-	while(tmp)
+	while(tmp && count_open >= 0)
 	{
 		if(tmp->type == TOK_OPENBRC)
 			count_open++;
-		tmp = tmp->next;
-	}
-	tmp = node;
-	while(tmp)
-	{
 		if(tmp->type == TOK_CLOSEBRC)
 			count_open--;
-		tmp = tmp->next;	
+		tmp = tmp->next;
 	}
 	if(count_open)
 		return (0);
@@ -62,11 +57,20 @@ static int	check_brackets(t_token *node)
 				return (0);
 			}
 		}
+		if(tmp->type == TOK_CLOSEBRC && tmp->next->type == TOK_OPENBRC)
+		{
+			ft_printf("shellGuys: parse error near `('\n");
+				return (0);
+		}
+		if((tmp->type == TOK_CMD || TOK_KEYWORD) && tmp->next->type == TOK_OPENBRC)
+		{
+			ft_printf("shellGuys: number expected\n");
+				return (0);
+		}
 		tmp = tmp->next;
 	}
 	return (0);
 }
-
 
 static int	check_two_sided(t_token *node)
 {
@@ -86,6 +90,12 @@ static int	check_two_sided(t_token *node)
 			ft_printf("shellGuys: syntax error near unexpected token '%s'\n"
 						,tmp->next->value);
 					return (0);
+		}
+		if(is_two_sided(tmp) && (tmp->next->type == TOK_CLOSEBRC 
+			|| tmp->next->type == TOK_OPENBRC))
+		{
+			ft_printf("parse error near `%s'\n", tmp->next->value);
+			return (0);
 		}
 		tmp = tmp->next;
 	}

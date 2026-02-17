@@ -34,10 +34,10 @@ typedef struct s_token {
 }	t_token;
 
 void	set_list(t_token **list, char **argv);
-void 	set_sign(t_token **node);
 void	set_types(t_token **list);
 void    process_heredocs(t_token *list);
 
+int 	set_sign(t_token **node);
 int		is_two_sided(t_token *node);
 int		is_sign(t_token *node);
 int		is_one_sided(t_token *node);

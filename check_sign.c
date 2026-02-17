@@ -52,7 +52,7 @@ int	return_sign_len(t_token *node)
 	return (0);
 }
 
-void set_sign(t_token **node)
+int set_sign(t_token **node)
 {
 	if(node && (!ft_strncmp((*node)->value, "||", 2)))
 		(*node)->type = TOK_OR;
@@ -72,5 +72,8 @@ void set_sign(t_token **node)
 		(*node)->type = TOK_OPENBRC;
 	else if(node && (!ft_strncmp((*node)->value, ")", 1)))
 		(*node)->type = TOK_CLOSEBRC;
+	else
+		return (0);
+	return (1);
 }
 
