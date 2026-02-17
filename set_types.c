@@ -62,7 +62,7 @@ static void	split_sign_node(t_token **list)
 			free(new);
 			return ;
 		}
-		new->type = TOK_KEYWORD;
+		set_sign(&new);
 		if(tmp->next)
 			tmp_ptr = tmp->next;
 		tmp->next = new;
@@ -142,7 +142,7 @@ void	set_types(t_token **list)
 		return ;
 	while(tmp && tmp->next)
 	{
-		if(is_one_sided(tmp))
+		if(is_one_sided(tmp) && !is_sign(tmp->next))
 		{
 			if(tmp->type == TOK_REDIR_IN)
 				tmp->next->type = TOK_INFILE;
@@ -151,7 +151,7 @@ void	set_types(t_token **list)
 			else
 				tmp->next->type = TOK_OUTFILE;
 		}
-		else if(is_two_sided(tmp))
+		else if(is_two_sided(tmp) && !is_sign(tmp->next))
 			tmp->next->type = TOK_CMD;
 		tmp = tmp->next;
 	}
