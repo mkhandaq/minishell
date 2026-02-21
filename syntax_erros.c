@@ -70,7 +70,7 @@ static int	check_brackets(t_token *node)
 		}			
 		tmp = tmp->next;
 	}
-	return (0);
+	return (1);
 }
 
 static int	check_two_sided(t_token *node)
@@ -92,8 +92,7 @@ static int	check_two_sided(t_token *node)
 						,tmp->next->value);
 					return (0);
 		}
-		if(is_two_sided(tmp) && (tmp->next->type == TOK_CLOSEBRC 
-			|| tmp->next->type == TOK_OPENBRC))
+		if(is_two_sided(tmp) && tmp->next->type == TOK_CLOSEBRC )
 		{
 			ft_printf("parse error near `%s'\n", tmp->next->value);
 			return (0);
@@ -140,7 +139,7 @@ static int	check_one_sided(t_token *node)
 
 int	check_syntax_errors(t_token *node)
 {
-	if (!check_two_sided(node) || !check_one_sided(node) || check_brackets(node))
+	if (!check_two_sided(node) || !check_one_sided(node) || !check_brackets(node))
 		return (0);
 	return (1);
 }

@@ -9,7 +9,9 @@ LIBFT = $(LIBFTPATH)/libft.a
 PRINTFPATH = printf
 PRINTF = $(PRINTFPATH)/ft_printf.a
 
-SRCS = check_sign.c main.c set_list.c heredoc.c get_next_line.c get_next_line_utils.c set_types.c syntax_erros.c
+SRCS = check_sign.c main.c heredoc.c get_next_line.c signals.c\
+		get_next_line_utils.c set_types.c syntax_erros.c set_list.c\
+		env.c
 OBJS = $(SRCS:.c=.o)
 
 HEADERS = minishell.h

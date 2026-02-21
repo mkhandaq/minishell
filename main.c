@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkhandaq <mkhandaq@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 19:20:34 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/02/16 18:11:18 by mkhandaq         ###   ########.fr       */
+/*   Updated: 2026/02/21 16:31:44 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,6 @@ void	print_types(t_token	*node)
 			ft_printf("[REDIR_OUT] ");
 		else if(node->type == TOK_HEREDOC)
 			ft_printf("[HEREDOC] ");
-		// here is some edits by me to print the types of the nodes after the signs
-			// so here we print the types of the nodes after the signs
 		else if(node->type == TOK_INFILE)
 			ft_printf("[INFILE] ");
 		else if(node->type == TOK_OUTFILE)
@@ -52,33 +50,6 @@ void	print_types(t_token	*node)
 		node = node->next;
 	}
 	ft_printf("\n");
-}
-
-void	free_list(t_token	**list)
-{
-	t_token	*tmp;
-
-	tmp = *list;
-	while (*list)
-	{
-		tmp = (*list)->next;
-		free((*list)->value);
-		free(*list);
-		*list = tmp;
-	}
-}
-
-static void	free_2d(char **argv)
-{
-	int	i;
-
-	i = 0;
-	while(argv[i])
-	{
-		free(argv[i]);
-		i++;
-	}
-	free(argv);
 }
 
 void printlist(t_token *node)
@@ -105,8 +76,7 @@ void printlist(t_token *node)
 			else if(tmp->type == TOK_OPENBRC)
 				ft_printf("[(] ");
 			else if(tmp->type == TOK_CLOSEBRC)
-				ft_printf("[)] ");
-				
+				ft_printf("[)] ");			
 		}
 		else
 			ft_printf("[%s] ", tmp->value);
@@ -117,31 +87,49 @@ void printlist(t_token *node)
 	ft_printf("\n");
 }
 
+void	free_list(t_token	**list)
+{
+	t_token	*tmp;
+
+	tmp = *list;
+	while (*list)
+	{
+		tmp = (*list)->next;
+		free((*list)->value);
+		free(*list);
+		*list = tmp;
+	}
+}
+
 static void	shell_loop()
 {
 	char	*input;
-	char	**splited;
 	t_token	*node;
 
 	while(1)
 	{
-		input = readline("shellGuys$ ");
+		input = readline(GREEN "shellGuys" BLUE "$ " RESET);
 		if (!input)
+		{
+			ft_printf("exit\n");
 			return ;
-		splited = ft_split(input, ' ');
-		node = NULL;
-		set_list(&node, splited);
+		}
+		if (input[0] != '\0')
+			add_history(input);
+		node = set_list(input);
 		set_types(&node);
 		process_heredocs(node);
 		print_types(node);
 		printlist(node);
 		free(input);
-		free_2d(splited);
 		free_list(&node);
 	}
 }
 
-int main()
+int main(int ac, char **av, char **envt)
 {
+	if(ac != 1 || !(av || *av))
+		return (1);
+	set_signals();
 	shell_loop();
 }
