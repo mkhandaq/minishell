@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mkhandaq <mkhandaq@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 19:20:34 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/02/21 16:31:44 by marvin           ###   ########.fr       */
+/*   Updated: 2026/02/21 20:47:46 by mkhandaq         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,7 @@ static void	shell_loop()
 	}
 }
 
-int main(int ac, char **av, char **envt)
+int main(int ac, char **av)
 {
 	if(ac != 1 || !(av || *av))
 		return (1);

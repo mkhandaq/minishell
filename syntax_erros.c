@@ -46,7 +46,7 @@ static int	check_brackets(t_token *node)
 	{
 		if(tmp->type == TOK_CLOSEBRC || tmp->type == TOK_OPENBRC)
 		{
-			if(is_two_sided(tmp->next))
+			if(tmp->type == TOK_OPENBRC && is_two_sided(tmp->next))
 			{
 				ft_printf("shellGuys: parse error near `%s'\n", tmp->next->value);
 				return (0);
