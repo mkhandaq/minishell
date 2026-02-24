@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mkhandaq <mkhandaq@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 19:20:34 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/02/24 03:49:30 by marvin           ###   ########.fr       */
+/*   Updated: 2026/02/24 07:45:10 by mkhandaq         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,8 +132,6 @@ static void	shell_loop()
 			add_history(input);
 		node = set_list(input);
 		set_types(&node);
-		if (node &&	node->type == TOK_ECHO)
-			echo(&node);
 		process_heredocs(node); 
 		print_types(node);
 		printlist(node);

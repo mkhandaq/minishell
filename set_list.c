@@ -25,7 +25,7 @@ static void	push(t_token **list, char *value)
 	if (!new)
 		return ;
 	new->value = ft_strdup(value);
-	new->type = 0;
+	new->type = TOK_KEYWORD;
 	new->is_exuted = 0;
 	new->next = NULL;
 	if (tmp)
@@ -66,7 +66,6 @@ static char	*read_token(char *input, int *i)
 		result = ft_substr(input, start, len);
 	return (result);
 }
-
 
 t_token	*set_list(char *input)
 {

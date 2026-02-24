@@ -63,6 +63,7 @@ void	set_built_in_cmds(t_token **node)
 			tmp->type = TOK_EXIT;
 		if(is_one_sided(tmp))
 			tmp = tmp->next;
-		tmp = tmp->next;
+		//while(tmp && !is_sign(tmp)) // it fucked up the code logic (ls) ls|ls|ls|ls
+			tmp = tmp->next;
 	}
 }
