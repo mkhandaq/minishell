@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkhandaq <mkhandaq@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 19:20:34 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/02/21 20:47:46 by mkhandaq         ###   ########.fr       */
+/*   Updated: 2026/02/24 03:49:30 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,20 @@ void	print_types(t_token	*node)
 			ft_printf("[OPENBRC] ");
 		else if(node->type == TOK_CLOSEBRC)
 			ft_printf("[CLOSEBRC] ");
+		else if(node->type == TOK_ECHO)
+			ft_printf("[ECHO] ");
+		else if(node->type == TOK_CD)
+			ft_printf("[CD] ");
+		else if(node->type == TOK_PWD)
+			ft_printf("[PWD] ");
+		else if(node->type == TOK_EXPORT)
+			ft_printf("[EXPORT] ");
+		else if(node->type == TOK_UNSET)
+			ft_printf("[UNSET] ");
+		else if(node->type == TOK_ENV)
+			ft_printf("[ENV] ");
+		else if(node->type == TOK_EXIT)
+			ft_printf("[EXIT] ");
 		if(node->next)
 			ft_printf("-> ");
 		node = node->next;
@@ -118,7 +132,9 @@ static void	shell_loop()
 			add_history(input);
 		node = set_list(input);
 		set_types(&node);
-		process_heredocs(node);
+		if (node &&	node->type == TOK_ECHO)
+			echo(&node);
+		process_heredocs(node); 
 		print_types(node);
 		printlist(node);
 		free(input);

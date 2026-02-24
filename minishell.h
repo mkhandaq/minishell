@@ -31,7 +31,14 @@ typedef enum e_toktype {
 	TOK_OUTFILE,
 	TOK_LIMITER,
 	TOK_OPENBRC,
-	TOK_CLOSEBRC
+	TOK_CLOSEBRC,
+	TOK_ECHO,
+	TOK_CD,
+	TOK_PWD,
+	TOK_EXPORT,
+	TOK_UNSET,
+	TOK_ENV,
+	TOK_EXIT
 } t_toktype;
 
 typedef struct s_token {
@@ -46,8 +53,10 @@ t_token	*set_list(char *input);
 void	set_types(t_token **list);
 void    process_heredocs(t_token *list);
 void    set_signals(void);
-void    env(char **str);
-void    pwd(char **str);
+void    env(char **envt);
+void    pwd(char **envt);
+void	set_built_in_cmds(t_token **node);
+void	echo(t_token **list);
 
 char 	**export(char **env, char *added_var);
 

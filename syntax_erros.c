@@ -37,7 +37,7 @@ static int	check_brackets(t_token *node)
 	t_token *tmp;
 
 	tmp = node;
-	if(!is_closed(tmp))
+	if(tmp && !is_closed(tmp))
 	{
 		ft_printf("shellGuys: CLOSE THAT BRACKET\n");
 		return (0);
@@ -112,13 +112,12 @@ static int	check_one_sided(t_token *node)
 	t_token *tmp;
 
 	tmp = node;
-	if (tmp->type == TOK_HEREDOC && is_sign(tmp->next))
+	if (tmp && tmp->type == TOK_HEREDOC && is_sign(tmp->next))
 	{
 	    ft_printf("shellGuys: syntax error near unexpected token '%s'\n",
 	              tmp->next->value);
 	    return (0);
 	}
-
 	while(tmp && tmp->next)
 	{
 		if(is_one_sided(tmp) && is_sign(tmp->next))

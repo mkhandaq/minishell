@@ -163,4 +163,6 @@ void	set_types(t_token **list)
 			tmp->next->type = TOK_KEYWORD;
 		tmp = tmp->next;
 	}
+	tmp = *list;
+	set_built_in_cmds(&tmp);
 }

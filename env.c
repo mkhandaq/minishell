@@ -12,28 +12,28 @@
 
 #include "minishell.h"
 
-void    env(char **str)
+void    env(char **envt)
 {
 	int	i;
 
 	i = 0;
-	while(str[i])
+	while(envt[i])
 	{
-		ft_printf("%s\n", str[i]);
+		ft_printf("%s\n", envt[i]);
 		i++;
 	}
 }
 
-void	pwd(char **str)
+void	pwd(char **envt)
 {
 	int	i;
 
 	i = 0;
-	while(str[i])
+	while(envt[i])
 	{
-		if(!ft_strncmp(str[i], "PWD=", 4))
+		if(!ft_strncmp(envt[i], "PWD=", 4))
 		{
-			ft_printf("%s\n", str[i] + 4);
+			ft_printf("%s\n", envt[i] + 4);
 			return ;
 		}
 		i++;
