@@ -132,7 +132,6 @@ void	set_types(t_token **list)
 	t_token *tmp;
 
 	tmp = *list;
-	
 	while(tmp)
 	{
 		set_sign(&tmp);
@@ -142,6 +141,8 @@ void	set_types(t_token **list)
 	split_node_loop(&tmp);
 	if(!check_syntax_errors(tmp))
 		return ;
+	if (tmp)
+		tmp->type = TOK_CMD;
 	while(tmp && tmp->next)
 	{
 		if(is_one_sided(tmp) && !is_sign(tmp->next))
@@ -153,10 +154,30 @@ void	set_types(t_token **list)
 			else
 				tmp->next->type = TOK_OUTFILE;
 		}
-		else if(is_sign(tmp) && !is_one_sided(tmp) && !is_sign(tmp->next))
+		if(is_sign(tmp) && !is_one_sided(tmp) && !is_sign(tmp->next))
 			tmp->next->type = TOK_CMD;
+		if (tmp->type == TOK_INFILE || tmp->type == TOK_OUTFILE 
+			|| tmp->type == TOK_LIMITER)
+			tmp->next->type = TOK_CMD;
+
 		tmp = tmp->next;
 	}
+	// tmp = *list;
+	// while(tmp)
+	// {
+	// 	if(tmp && tmp->type == TOK_CMD)
+	// 	{
+	// 		tmp = tmp->next;
+	// 		while(tmp && !is_two_sided(tmp))
+	// 		{
+	// 			if(tmp && !is_sign(tmp) && !is_file(tmp))
+	// 				tmp->type = TOK_KEYWORD;
+	// 			tmp = tmp->next;
+	// 		}
+	// 		if(tmp)
+	// 			tmp = tmp->next;
+	// 	}
+	// }
 	tmp = *list;
 	while (tmp && tmp->next)
 	{

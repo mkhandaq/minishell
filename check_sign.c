@@ -40,6 +40,14 @@ int	is_one_sided(t_token *node)
 	return (0);
 }
 
+int	is_file(t_token *node)
+{
+	if (node && (node->type == TOK_INFILE || node->type == TOK_OUTFILE
+		|| node->type == TOK_LIMITER))
+		return (1);
+	return (0);
+}
+
 int	return_sign_len(t_token *node)
 {
 	if(node && (node->type == TOK_PIPE || node->type == TOK_REDIR_IN
