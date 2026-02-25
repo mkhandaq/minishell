@@ -67,7 +67,13 @@ static int	check_brackets(t_token *node)
 		{
 			ft_printf("shellGuys: number expected\n");
 				return (0);
-		}			
+		}
+		if (tmp->type == TOK_CLOSEBRC 
+			&& (tmp->next->type == TOK_CMD || tmp->next->type == TOK_KEYWORD))
+		{
+			ft_printf("shellGuys: parse error near `%s'\n", tmp->next->value);
+				return (0);
+		}	
 		tmp = tmp->next;
 	}
 	return (1);
