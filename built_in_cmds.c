@@ -61,9 +61,9 @@ void	set_built_in_cmds(t_token **node)
 		else if (tmp && !ft_strncmp(tmp->value, "exit", 4)
 			&& ft_strlen(tmp->value) == 4)
 			tmp->type = TOK_EXIT;
-		if(is_one_sided(tmp))
+		if(is_sign(tmp))
 			tmp = tmp->next;
-		//while(tmp && !is_sign(tmp)) // it fucked up the code logic (ls) ls|ls|ls|ls
+		while(tmp && !is_sign(tmp))
 			tmp = tmp->next;
 	}
 }
