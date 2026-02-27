@@ -12,7 +12,6 @@
 
 #include "minishell.h"
 
-
 static void	set_splited_nodes(char *root, char **str1, char **str2)
 {
 	int	i;
@@ -154,10 +153,8 @@ void	set_types(t_token **list)
 		}
 		if(is_sign(tmp) && !is_one_sided(tmp) && !is_sign(tmp->next))
 			tmp->next->type = TOK_CMD;
-		if (tmp->type == TOK_INFILE || tmp->type == TOK_OUTFILE 
-			|| tmp->type == TOK_LIMITER)
+		if (is_file(tmp))
 			tmp->next->type = TOK_CMD;
-
 		tmp = tmp->next;
 	}
 	tmp = *list;
@@ -190,3 +187,18 @@ void	set_types(t_token **list)
 	tmp = *list;
 	set_built_in_cmds(&tmp);
 }
+
+
+// $, cd, exit
+// typedef struct s_tree
+// {
+// 	t_token *list;
+// 	struct s_tree *left;
+// 	struct s_tree *right;
+// }t_tree;
+
+// && || |
+//()
+//< << >> >
+//CMD
+//KEYWORD

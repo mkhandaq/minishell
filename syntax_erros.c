@@ -12,6 +12,12 @@
 
 #include "minishell.h"
 
+void	print_error(char *error_message, int exit_code)
+{
+	perror(error_message);
+	exit(exit_code);
+}
+
 static int	is_closed(t_token *node)
 {
 	t_token	*tmp;
