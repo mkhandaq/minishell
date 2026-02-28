@@ -40,13 +40,13 @@ static void	set_splited_nodes(char *root, char **str1, char **str2)
 	free(root);
 }
 
-static void	split_sign_node(t_token **list)
+static void	split_sign_node(t_token *list)
 {
 	t_token *tmp;
 	t_token *tmp_ptr;
 	t_token *new;
 
-	tmp = *list;
+	tmp = list;
 	tmp_ptr = NULL;
 	if(is_sign(tmp))
 	{
@@ -71,14 +71,14 @@ static void	split_sign_node(t_token **list)
 	}
 }
 
-static int	split_nonsign_node(t_token **list)
+static int	split_nonsign_node(t_token *list)
 {
 	t_token	*tmp;
 	t_token	*tmp_ptr;
 	t_token	*new;
 	char	*node_value;
 
-	tmp = *list;
+	tmp = list;
 	tmp_ptr = NULL;
 	if(!is_sign(tmp))
 	{
@@ -113,32 +113,32 @@ static int	split_nonsign_node(t_token **list)
 	return (0);
 }
 
-static void	split_node_loop(t_token **list)
+static void	split_node_loop(t_token *list)
 {
 	t_token *tmp;
 
-	tmp = *list;
+	tmp = list;
 	while(tmp)
 	{
-		if (split_nonsign_node(&tmp))
+		if (split_nonsign_node(tmp))
 			tmp = tmp->next;
-		split_sign_node(&tmp);
+		split_sign_node(tmp);
 		tmp = tmp->next;
 	}
 }
 
-void	set_types(t_token **list)
+void	set_types(t_token *list)
 {
 	t_token *tmp;
 
-	tmp = *list;
+	tmp = list;
 	while(tmp)
 	{
 		set_sign(&tmp);
 		tmp = tmp->next;
 	}
-	tmp = *list;
-	split_node_loop(&tmp);
+	tmp = list;
+	split_node_loop(tmp);
 	if(!check_syntax_errors(tmp))
 		return ;
 	while(tmp && tmp->next)
@@ -160,7 +160,7 @@ void	set_types(t_token **list)
 
 		tmp = tmp->next;
 	}
-	tmp = *list;
+	tmp = list;
 	if (tmp && !is_sign(tmp))
 		tmp->type = TOK_CMD;
 	while(tmp)
@@ -180,13 +180,13 @@ void	set_types(t_token **list)
 		else
 			tmp = tmp->next;
 	}
-	tmp = *list;
+	tmp = list;
 	while (tmp && tmp->next)
 	{
 		if(tmp->type == TOK_CMD && !(is_sign(tmp->next)))
 			tmp->next->type = TOK_KEYWORD;
 		tmp = tmp->next;
 	}
-	tmp = *list;
-	set_built_in_cmds(&tmp);
+	tmp = list;
+	set_built_in_cmds(tmp);
 }

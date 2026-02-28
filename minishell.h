@@ -51,12 +51,12 @@ typedef struct s_token {
 
 t_token	*set_list(char *input);
 
-void	set_types(t_token **list);
+void	set_types(t_token *list);
 void    process_heredocs(t_token *list);
 void    set_signals(void);
 void    env(char **envt);
 void    pwd(char **envt);
-void	set_built_in_cmds(t_token **node);
+void	set_built_in_cmds(t_token *node);
 void	echo(t_token **list);
 
 char 	**export(char **env, char *added_var);
@@ -68,5 +68,16 @@ int		is_one_sided(t_token *node);
 int		check_syntax_errors(t_token *node);
 int		return_sign_len(t_token *node);
 int		is_file(t_token *node);
+
+// tree implementation
+
+typedef struct s_tree
+{
+	t_token			*command_list;
+	struct s_tree	*left;
+	struct s_tree	*right;
+	int				start;
+	int				end;
+}					t_tree;
 
 #endif

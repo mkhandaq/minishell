@@ -33,11 +33,11 @@ void	echo(t_token **list)
 		ft_printf("\n");
 }
 
-void	set_built_in_cmds(t_token **node)
+void	set_built_in_cmds(t_token *node)
 {
 	t_token *tmp;
 
-	tmp = *node;
+	tmp = node;
 	while(tmp)
 	{
 		if (tmp && !ft_strncmp(tmp->value, "echo", 4) 

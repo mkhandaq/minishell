@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkhandaq <mkhandaq@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aalemami <aalemami@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 19:20:34 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/02/24 07:45:10 by mkhandaq         ###   ########.fr       */
+/*   Updated: 2026/02/28 20:49:23 by aalemami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,7 +131,7 @@ static void	shell_loop()
 		if (input[0] != '\0')
 			add_history(input);
 		node = set_list(input);
-		set_types(&node);
+		set_types(node);
 		process_heredocs(node); 
 		print_types(node);
 		printlist(node);
