@@ -24,35 +24,31 @@ void    env(char **envt)
 	}
 }
 
-void	pwd(char **envt)
+void	pwd(void)
 {
-	int	i;
+	char	*cwd;
 
-	i = 0;
-	while(envt[i])
+	cwd = getcwd(NULL, 0);
+	if (cwd)
 	{
-		if(!ft_strncmp(envt[i], "PWD=", 4))
-		{
-			ft_printf("%s\n", envt[i] + 4);
-			return ;
-		}
-		i++;
+		ft_printf("%s\n", cwd);
+		free(cwd);
 	}
 }
 
-char 	**export(char **env, char *added_var)
+char	**export(char **env, char *added_var)
 {
 	int		i;
 	char	**new_env;
 
 	i = 0;
-	while(env[i])
+	while (env[i])
 		i++;
 	new_env = malloc(sizeof(char *) * (i + 2));
-	if(!new_env)
+	if (!new_env)
 		return (env);
 	i = 0;
-	while(env[i])
+	while (env[i])
 	{
 		new_env[i] = ft_strdup(env[i]);
 		i++;
@@ -60,6 +56,9 @@ char 	**export(char **env, char *added_var)
 	new_env[i] = ft_strdup(added_var);
 	new_env[i + 1] = NULL;
 	i = 0;
+	while (env[i])
+		free(env[i++]);
+	free(env);
 	return (new_env);
 }
 
@@ -106,5 +105,9 @@ char	**unset(char **env, char *removed_var)
 		i++;
 	}
 	new_env[j] = NULL;
+	i = 0;
+	while (env[i])
+		free(env[i++]);
+	free(env);
 	return (new_env);
 }

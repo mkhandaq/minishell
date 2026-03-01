@@ -55,7 +55,7 @@ void	set_types(t_token **list);
 void    process_heredocs(t_token *list);
 void    set_signals(void);
 void    env(char **envt);
-void    pwd(char **envt);
+void	pwd(void);
 void	set_built_in_cmds(t_token **node);
 void	echo(t_token **list);
 
@@ -68,5 +68,6 @@ int		is_one_sided(t_token *node);
 int		check_syntax_errors(t_token *node);
 int		return_sign_len(t_token *node);
 int		is_file(t_token *node);
+int		cd(char **args, char ***env);
 
 #endif

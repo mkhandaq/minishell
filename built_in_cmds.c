@@ -12,27 +12,6 @@
 
 #include "minishell.h"
 
-void	echo(t_token **list)
-{
-	int i;
-
-	i = 0;
-	if ((*list)->next && !ft_strncmp((*list)->next->value, "-n", 2) 
-		&& ft_strlen((*list)->next->value) == 2)
-	{
-		*list = (*list)->next;
-		i = 1;
-	}
-	*list = (*list)->next;
-	while(*list && !(is_sign(*list)))
-	{
-		ft_printf("%s ", (*list)->value);
-		*list = (*list)->next;
-	}
-	if(!i)
-		ft_printf("\n");
-}
-
 void	set_built_in_cmds(t_token **node)
 {
 	t_token *tmp;
@@ -66,4 +45,66 @@ void	set_built_in_cmds(t_token **node)
 		while(tmp && !is_sign(tmp))
 			tmp = tmp->next;
 	}
+}
+
+void	echo(t_token **list)
+{
+	int i;
+
+	i = 0;
+	if ((*list)->next && !ft_strncmp((*list)->next->value, "-n", 2) 
+		&& ft_strlen((*list)->next->value) == 2)
+	{
+		*list = (*list)->next;
+		i = 1;
+	}
+	*list = (*list)->next;
+	while(*list && !(is_sign(*list)))
+	{
+		ft_printf("%s ", (*list)->value);
+		*list = (*list)->next;
+	}
+	if(!i)
+		ft_printf("\n");
+}
+
+int	cd(char **args, char ***env)
+{
+	char	*oldpwd;
+	char	*newpwd;
+	char	*path;
+	char	*tmp;
+
+	if (args[2])
+	{
+		ft_printf("shellGuys: cd: too many arguments\n");
+		return (1);
+	}
+	oldpwd = getcwd(NULL, 0);
+	if (!args[1])
+		path = getenv("HOME");
+	else
+		path = args[1];
+	if (!path)
+	{
+		ft_printf("shellGuys: cd: HOME not set\n");
+		free(oldpwd);
+		return (1);
+	}
+	if (chdir(path) == -1)
+	{
+		ft_printf("shellGuys: cd: %s: No such file or directory\n", path);
+		free(oldpwd);
+		return (1);
+	}
+	newpwd = getcwd(NULL, 0);
+	tmp = ft_strjoin("OLDPWD=", oldpwd);
+	*env = export(*env, tmp);
+	free(tmp);
+	tmp = ft_strjoin("PWD=", newpwd);
+	*env = export(*env, tmp);
+	free(tmp);
+	free(oldpwd);
+	free(newpwd);
+	return (0);
 }
