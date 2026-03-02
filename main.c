@@ -6,7 +6,7 @@
 /*   By: aalemami <aalemami@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 19:20:34 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/03/02 07:05:34 by aalemami         ###   ########.fr       */
+/*   Updated: 2026/03/02 07:46:23 by aalemami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,3 +151,13 @@ int main(int ac, char **av)
 	set_signals();
 	shell_loop();
 }
+
+//// to do list
+
+// add subshell token
+// implement exit
+// parse built in commands number of parameters? test 
+// expansion
+// 
+// execute 
+// 

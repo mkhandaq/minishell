@@ -38,14 +38,15 @@ typedef enum e_toktype {
 	TOK_EXPORT,
 	TOK_UNSET,
 	TOK_ENV,
-	TOK_EXIT
+	TOK_EXIT,
+	TOK_SUBSHELL
 } t_toktype;
 
 typedef enum e_strtype {
-	TOK_STR;
-	TOK_SING;
-	TOK_DUP;
-}t_strtype;
+	TOK_STR,
+	TOK_SING,
+	TOK_DUP
+}	t_strtype;
 
 typedef struct s_token {
 	t_toktype		type; 
