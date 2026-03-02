@@ -41,8 +41,15 @@ typedef enum e_toktype {
 	TOK_EXIT
 } t_toktype;
 
+typedef enum e_strtype {
+	TOK_STR;
+	TOK_SING;
+	TOK_DUP;
+}t_strtype;
+
 typedef struct s_token {
-	t_toktype		type ; 
+	t_toktype		type; 
+	t_strtype		strtype;
 	int				is_exuted;   
 	char			*value;
 	struct s_token	*next;
