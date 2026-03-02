@@ -70,4 +70,14 @@ int		return_sign_len(t_token *node);
 int		is_file(t_token *node);
 int		cd(char **args, char ***env);
 
+typedef struct s_tree {
+	t_toktype		type;
+	t_token			*tokens;
+	struct s_tree	*left;
+	struct s_tree	*right;
+}	t_tree;
+
+t_tree	*build_tree(t_token *tokens);
+void	free_tree(t_tree *tree);
+
 #endif
