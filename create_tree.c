@@ -211,7 +211,7 @@ static void	print_tree_helper(t_tree *tree, char *prefix, int is_left)
 	while (tok)
 	{
 		if (tok->value)
-			ft_printf(" \"%s\"", tok->value);
+			ft_printf(" {%s:\"%s\"}", toktype_str(tok->type), tok->value);
 		tok = tok->next;
 	}
 	ft_printf("\n");
@@ -237,7 +237,7 @@ void	print_tree(t_tree *tree)
 	while (tok)
 	{
 		if (tok->value)
-			ft_printf(" \"%s\"", tok->value);
+			ft_printf(" {%s:\"%s\"}", toktype_str(tok->type), tok->value);
 		tok = tok->next;
 	}
 	ft_printf("\n");

@@ -6,7 +6,7 @@
 /*   By: aalemami <aalemami@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 19:20:34 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/03/02 06:31:28 by aalemami         ###   ########.fr       */
+/*   Updated: 2026/03/02 07:05:34 by aalemami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,6 +119,7 @@ static void	shell_loop()
 {
 	char	*input;
 	t_token	*node;
+	t_tree	*tree;
 
 	while(1)
 	{
@@ -133,11 +134,13 @@ static void	shell_loop()
 		node = set_list(input);
 		set_types(&node);
 		process_heredocs(node);
-		print_tree(build_tree(node));//new
+		tree = build_tree(node);//new
+		print_tree(tree);
 		// print_types(node);
 		// printlist(node);
-		free(input);
-		free_list(&node);
+		// free(input);
+		// free_list(&node);
+		free_tree(tree);
 	}
 }
 
