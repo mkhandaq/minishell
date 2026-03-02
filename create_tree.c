@@ -18,10 +18,7 @@ static t_tree	*new_tree_node(t_toktype type)
 
 	node = malloc(sizeof(t_tree));
 	if (!node)
-	{
-		perror("minishell: malloc");
-		exit(1);
-	}
+		return (NULL);
 	node->type = type;
 	node->tokens = NULL;
 	node->left = NULL;
@@ -115,20 +112,48 @@ static t_token	*strip_parens(t_token *tokens)
 	return (inner);
 }
 
+static void	free_token_list(t_token *tokens)
+{
+	t_token	*tmp;
+
+	while (tokens)
+	{
+		tmp = tokens->next;
+		free(tokens->value);
+		free(tokens);
+		tokens = tmp;
+	}
+}
+
 static t_tree	*split_at_op(t_token *tokens, t_token *op, t_token *prev)
 {
 	t_tree	*node;
+	t_token	*right_tokens;
 
 	node = new_tree_node(op->type);
 	if (!node)
-		return (NULL);
+		return (free_token_list(tokens), NULL);
 	node->tokens = op;
 	if (prev)
 		prev->next = NULL;
-	node->right = build_tree(op->next);
+	right_tokens = op->next;
 	op->next = NULL;
+	if (right_tokens)
+	{
+		node->right = build_tree(right_tokens);
+		if (!node->right)
+		{
+			if (prev)
+				free_token_list(tokens);
+			return (free_tree(node), NULL);
+		}
+	}
 	if (prev)
+	{
 		node->left = build_tree(tokens);
+		if (!node->left)
+			return (free_tree(node), NULL);
+	}
 	return (node);
 }
 
@@ -149,7 +174,7 @@ t_tree	*build_tree(t_token *tokens)
 		return (split_at_op(tokens, op, prev));
 	node = new_tree_node(TOK_CMD);
 	if (!node)
-		return (NULL);
+		return (free_token_list(tokens), NULL);
 	node->tokens = tokens;
 	return (node);
 }
