@@ -18,7 +18,10 @@ static t_tree	*new_tree_node(t_toktype type)
 
 	node = malloc(sizeof(t_tree));
 	if (!node)
-		return (NULL);
+	{
+		perror("minishell: malloc");
+		exit(1);
+	}
 	node->type = type;
 	node->tokens = NULL;
 	node->left = NULL;
