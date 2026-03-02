@@ -11,7 +11,7 @@ PRINTF = $(PRINTFPATH)/ft_printf.a
 
 SRCS = check_sign.c main.c heredoc.c get_next_line.c signals.c\
 		get_next_line_utils.c set_types.c syntax_erros.c set_list.c\
-		env.c built_in_cmds.c
+		env.c built_in_cmds.c create_tree.c
 OBJS = $(SRCS:.c=.o)
 
 HEADERS = minishell.h

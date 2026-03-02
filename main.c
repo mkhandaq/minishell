@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aalemami <aalemami@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 19:20:34 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/02/27 18:24:35 by marvin           ###   ########.fr       */
+/*   Updated: 2026/03/02 06:31:28 by aalemami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,8 +133,9 @@ static void	shell_loop()
 		node = set_list(input);
 		set_types(&node);
 		process_heredocs(node);
-		print_types(node);
-		printlist(node);
+		print_tree(build_tree(node));//new
+		// print_types(node);
+		// printlist(node);
 		free(input);
 		free_list(&node);
 	}

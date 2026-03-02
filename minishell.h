@@ -78,6 +78,7 @@ typedef struct s_tree {
 }	t_tree;
 
 t_tree	*build_tree(t_token *tokens);
+void	print_tree(t_tree *tree);
 void	free_tree(t_tree *tree);
 
 #endif

@@ -179,6 +179,72 @@ t_tree	*build_tree(t_token *tokens)
 	return (node);
 }
 
+static const char	*toktype_str(t_toktype type)
+{
+	const char	*names[] = {
+		"CMD", "KEYWORD", "PIPE", "AND", "OR",
+		"REDIR_IN", "REDIR_OUT", "REDIR_APPEND", "HEREDOC",
+		"INFILE", "OUTFILE", "LIMITER",
+		"OPENBRC", "CLOSEBRC",
+		"ECHO", "CD", "PWD", "EXPORT", "UNSET", "ENV", "EXIT"
+	};
+
+	if (type >= 0 && type <= TOK_EXIT)
+		return (names[type]);
+	return ("UNKNOWN");
+}
+
+static void	print_tree_helper(t_tree *tree, char *prefix, int is_left)
+{
+	char	*new_prefix;
+	t_token	*tok;
+
+	if (!tree)
+		return ;
+	ft_printf("%s", prefix);
+	if (is_left)
+		ft_printf("├── ");
+	else
+		ft_printf("└── ");
+	ft_printf("[%s]", toktype_str(tree->type));
+	tok = tree->tokens;
+	while (tok)
+	{
+		if (tok->value)
+			ft_printf(" \"%s\"", tok->value);
+		tok = tok->next;
+	}
+	ft_printf("\n");
+	new_prefix = ft_strjoin(prefix, is_left ? "│   " : "    ");
+	if (!new_prefix)
+		return ;
+	print_tree_helper(tree->left, new_prefix, 1);
+	print_tree_helper(tree->right, new_prefix, 0);
+	free(new_prefix);
+}
+
+void	print_tree(t_tree *tree)
+{
+	t_token	*tok;
+
+	if (!tree)
+	{
+		ft_printf("(empty tree)\n");
+		return ;
+	}
+	ft_printf("[%s]", toktype_str(tree->type));
+	tok = tree->tokens;
+	while (tok)
+	{
+		if (tok->value)
+			ft_printf(" \"%s\"", tok->value);
+		tok = tok->next;
+	}
+	ft_printf("\n");
+	print_tree_helper(tree->left, "", 1);
+	print_tree_helper(tree->right, "", 0);
+}
+
 void	free_tree(t_tree *tree)
 {
 	t_token	*tmp;
