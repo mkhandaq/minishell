@@ -166,7 +166,13 @@ t_tree	*build_tree(t_token *tokens)
 	if (!tokens)
 		return (NULL);
 	if (is_wrapped_in_parens(tokens))
-		return (build_tree(strip_parens(tokens)));
+	{
+		node = new_tree_node(TOK_SUBSHELL);
+		if (!node)
+			return (free_token_list(tokens), NULL);
+		node->left = build_tree(strip_parens(tokens));
+		return (node);
+	}
 	op = find_last_op(tokens, 0, &prev);
 	if (!op)
 		op = find_last_op(tokens, 1, &prev);
@@ -186,10 +192,10 @@ static const char	*toktype_str(t_toktype type)
 		"REDIR_IN", "REDIR_OUT", "REDIR_APPEND", "HEREDOC",
 		"INFILE", "OUTFILE", "LIMITER",
 		"OPENBRC", "CLOSEBRC",
-		"ECHO", "CD", "PWD", "EXPORT", "UNSET", "ENV", "EXIT"
+		"ECHO", "CD", "PWD", "EXPORT", "UNSET", "ENV", "EXIT", "SUBSHELL"
 	};
 
-	if (type >= 0 && type <= TOK_EXIT)
+	if (type >= 0 && type <= TOK_SUBSHELL)
 		return (names[type]);
 	return ("UNKNOWN");
 }
