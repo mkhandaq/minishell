@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aalemami <aalemami@student.42amman.com>    +#+  +:+       +#+        */
+/*   By: ali_shell <ali_shell@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 19:20:34 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/03/02 07:46:23 by aalemami         ###   ########.fr       */
+/*   Updated: 2026/03/06 08:29:45 by ali_shell        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,3 +161,4 @@ int main(int ac, char **av)
 // 
 // execute 
 // 
+// verify headers and make sure they are correct

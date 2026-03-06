@@ -66,6 +66,7 @@ void    env(char **envt);
 void	pwd(void);
 void	set_built_in_cmds(t_token **node);
 void	echo(t_token **list);
+int		builtin_exit(t_token *node); //new
 
 char 	**export(char **env, char *added_var);
 
