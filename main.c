@@ -3,103 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ali_shell <ali_shell@student.42.fr>        +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 19:20:34 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/03/06 08:29:45 by ali_shell        ###   ########.fr       */
+/*   Updated: 2026/03/07 17:19:20 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-
-void	print_types(t_token	*node)
-{
-	while(node)
-	{
-		if(node->type == TOK_AND)
-			ft_printf("[AND] ");
-		else if(node->type == TOK_OR)
-			ft_printf("[OR] ");
-		else if(node->type == TOK_CMD)
-			ft_printf("[CMD] ");
-		else if(node->type == TOK_KEYWORD)
-			ft_printf("[KEYWORD] ");
-		else if(node->type == TOK_PIPE)
-			ft_printf("[PIPE] ");
-		else if(node->type == TOK_REDIR_APPEND)
-			ft_printf("[REDIR_APPEND] ");
-		else if(node->type == TOK_REDIR_IN)
-			ft_printf("[REDIR_IN] ");
-		else if(node->type == TOK_REDIR_OUT)
-			ft_printf("[REDIR_OUT] ");
-		else if(node->type == TOK_HEREDOC)
-			ft_printf("[HEREDOC] ");
-		else if(node->type == TOK_INFILE)
-			ft_printf("[INFILE] ");
-		else if(node->type == TOK_OUTFILE)
-			ft_printf("[OUTFILE] ");
-		else if(node->type == TOK_LIMITER)
-			ft_printf("[LIMITER] ");
-		else if(node->type == TOK_OPENBRC)
-			ft_printf("[OPENBRC] ");
-		else if(node->type == TOK_CLOSEBRC)
-			ft_printf("[CLOSEBRC] ");
-		else if(node->type == TOK_ECHO)
-			ft_printf("[ECHO] ");
-		else if(node->type == TOK_CD)
-			ft_printf("[CD] ");
-		else if(node->type == TOK_PWD)
-			ft_printf("[PWD] ");
-		else if(node->type == TOK_EXPORT)
-			ft_printf("[EXPORT] ");
-		else if(node->type == TOK_UNSET)
-			ft_printf("[UNSET] ");
-		else if(node->type == TOK_ENV)
-			ft_printf("[ENV] ");
-		else if(node->type == TOK_EXIT)
-			ft_printf("[EXIT] ");
-		if(node->next)
-			ft_printf("-> ");
-		node = node->next;
-	}
-	ft_printf("\n");
-}
-
-void printlist(t_token *node)
-{
-	t_token *tmp = node;
-	while (tmp)
-	{
-		if(is_sign(tmp))
-		{
-			if(tmp->type == TOK_AND)
-				ft_printf("[&&] ");
-			else if(tmp->type == TOK_OR)
-				ft_printf("[||] ");
-			else if(tmp->type == TOK_PIPE)
-				ft_printf("[|] ");
-			else if(tmp->type == TOK_REDIR_APPEND)
-				ft_printf("[>>] ");
-			else if(tmp->type == TOK_REDIR_IN)
-				ft_printf("[<] ");
-			else if(tmp->type == TOK_REDIR_OUT)
-				ft_printf("[>] ");
-			else if(tmp->type == TOK_HEREDOC)
-				ft_printf("[<<] ");
-			else if(tmp->type == TOK_OPENBRC)
-				ft_printf("[(] ");
-			else if(tmp->type == TOK_CLOSEBRC)
-				ft_printf("[)] ");			
-		}
-		else
-			ft_printf("[%s] ", tmp->value);
-		if(tmp->next)
-			ft_printf("-> ");
-		tmp = tmp->next;
-	}
-	ft_printf("\n");
-}
 
 void	free_list(t_token	**list)
 {
@@ -115,19 +27,21 @@ void	free_list(t_token	**list)
 	}
 }
 
-static void	shell_loop()
+static void	shell_loop(char **env)
 {
 	char	*input;
 	t_token	*node;
 	t_tree	*tree;
+	int		last_exit;
 
+	last_exit = 0;
 	while(1)
 	{
 		input = readline(GREEN "shellGuys" BLUE "$ " RESET);
 		if (!input)
 		{
 			ft_printf("exit\n");
-			return ;
+			exit(last_exit);
 		}
 		if (input[0] != '\0')
 			add_history(input);
@@ -135,21 +49,17 @@ static void	shell_loop()
 		set_types(&node);
 		process_heredocs(node);
 		tree = build_tree(node);//new
-		print_tree(tree);
-		// print_types(node);
-		// printlist(node);
-		// free(input);
-		// free_list(&node);
+		execute(tree, &env, &last_exit);
 		free_tree(tree);
 	}
 }
 
-int main(int ac, char **av)
+int main(int ac, char **av, char **env)
 {
 	if(ac != 1 || !(av || *av))
 		return (1);
 	set_signals();
-	shell_loop();
+	shell_loop(env);
 }
 
 //// to do list

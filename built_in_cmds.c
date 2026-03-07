@@ -12,6 +12,16 @@
 
 #include "minishell.h"
 
+int	is_built_in(t_token *node)
+{
+	if (node && (node->type == TOK_ECHO || node->type == TOK_CD 
+		|| node->type == TOK_EXIT || node->type == TOK_EXPORT
+		|| node->type == TOK_UNSET || node->type == TOK_PWD
+		|| node->type == TOK_ENV))
+		return (1);
+	return (0);
+}
+
 static int	only_n_chars(const char *s)
 {
 	if (!s || !*s)
