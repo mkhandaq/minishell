@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <limits.h>
 #include <signal.h>
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -69,6 +70,8 @@ void	echo(t_token **list);
 int		builtin_exit(t_token *node); //new
 
 char 	**export(char **env, char *added_var);
+void	print_export(char **env);
+int		is_valid_identifier(const char *str);
 
 int 	set_sign(t_token **node);
 int		is_two_sided(t_token *node);

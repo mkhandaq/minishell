@@ -39,11 +39,24 @@ void	pwd(void)
 char	**export(char **env, char *added_var)
 {
 	int		i;
+	int		name_len;
 	char	**new_env;
 
+	name_len = 0;
+	while (added_var[name_len] && added_var[name_len] != '=')
+		name_len++;
 	i = 0;
 	while (env[i])
+	{
+		if (!ft_strncmp(env[i], added_var, name_len)
+			&& env[i][name_len] == '=')
+		{
+			free(env[i]);
+			env[i] = ft_strdup(added_var);
+			return (env);
+		}
 		i++;
+	}
 	new_env = malloc(sizeof(char *) * (i + 2));
 	if (!new_env)
 		return (env);
