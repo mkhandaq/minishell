@@ -6,7 +6,7 @@
 /*   By: ali_shell <ali_shell@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/08 00:00:00 by marvin            #+#    #+#             */
-/*   Updated: 2026/03/08 06:54:40 by ali_shell        ###   ########.fr       */
+/*   Updated: 2026/03/08 15:28:31 by ali_shell        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,8 @@ static char	*ft_charjoin(char *s, char c)
 	return (result);
 }
 
-static char	*expand_dollar(const char *s, int *i, int exit_status)
+static char	*expand_dollar(const char *s, int *i, int exit_status,
+		char **env)
 {
 	char	*var_name;
 	char	*value;
@@ -57,17 +58,18 @@ static char	*expand_dollar(const char *s, int *i, int exit_status)
 	var_name = ft_substr(s, start, *i - start);
 	if (!var_name)
 		return (NULL);
-	value = getenv(var_name);
+	value = ft_getenv(env, var_name);
 	free(var_name);
 	if (value)
 		return (ft_strdup(value));
 	return (ft_strdup(""));
 }
 
-static char	*expand_str(const char *s, int exit_status)
+static char	*expand_str(const char *s, int exit_status, char **env)
 {
 	char	*result;
 	char	*tmp;
+	char	*old;
 	int		i;
 
 	result = ft_strdup("");
@@ -77,8 +79,10 @@ static char	*expand_str(const char *s, int exit_status)
 		if (s[i] == '$' && (s[i + 1] == '?'
 				|| ft_isalpha(s[i + 1]) || s[i + 1] == '_'))
 		{
-			tmp = expand_dollar(s, &i, exit_status);
+			tmp = expand_dollar(s, &i, exit_status, env);
+			old = result;
 			result = ft_strjoin(result, tmp);
+			free(old);
 			free(tmp);
 		}
 		else
@@ -87,7 +91,7 @@ static char	*expand_str(const char *s, int exit_status)
 	return (result);
 }
 
-void	expand_tokens(t_token *list, int exit_status)
+void	expand_tokens(t_token *list, int exit_status, char **env)
 {
 	char	*expanded;
 
@@ -96,7 +100,7 @@ void	expand_tokens(t_token *list, int exit_status)
 		if (list->strtype != TOK_SING && list->type != TOK_LIMITER
 			&& list->value && ft_strchr(list->value, '$'))
 		{
-			expanded = expand_str(list->value, exit_status);
+			expanded = expand_str(list->value, exit_status, env);
 			free(list->value);
 			list->value = expanded;
 		}

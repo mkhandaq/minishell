@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   execution_utils.c                                  :+:      :+:    :+:   */
+/*   command_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ali_shell <ali_shell@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/03/07 13:47:55 by marvin            #+#    #+#             */
-/*   Updated: 2026/03/07 13:47:55 by marvin           ###   ########.fr       */
+/*   Created: 2026/03/08 16:07:29 by ali_shell         #+#    #+#             */
+/*   Updated: 2026/03/08 16:07:29 by ali_shell        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,7 +149,7 @@ char	*get_path(char *cmd, char **ev)
 	if (!cmd || !ev)
 		return (NULL);
 	if (!access(cmd, X_OK))
-		return (cmd);
+		return (ft_strdup(cmd));
 	i = 0;
 	while (ev[i] && ft_strncmp(ev[i], "PATH=", 5))
 		i++;

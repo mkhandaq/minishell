@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   or_and.c                                           :+:      :+:    :+:   */
+/*   execute.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ali_shell <ali_shell@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/03/07 16:52:12 by marvin            #+#    #+#             */
-/*   Updated: 2026/03/07 16:52:12 by marvin           ###   ########.fr       */
+/*   Created: 2026/03/08 16:07:58 by ali_shell         #+#    #+#             */
+/*   Updated: 2026/03/08 16:07:58 by ali_shell        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ int	execute(t_tree *tree, char ***env, int *last_exit)
 	if (tree->type == TOK_OR)
 		return (execute_or(tree, env, last_exit));
 	if (tree->type == TOK_CMD)
-		return (execute_cmd(*env, tree->tokens, last_exit));
+		return (execute_cmd(env, tree->tokens, last_exit));
 	if (tree->type == TOK_SUBSHELL)
 		return (execute_subshell(tree, env, last_exit));
 	return (0);

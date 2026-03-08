@@ -1,14 +1,15 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   handle_qoutes.c                                    :+:      :+:    :+:   */
+/*   set_list.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ali_shell <ali_shell@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/19 15:46:00 by marvin            #+#    #+#             */
-/*   Updated: 2026/02/19 15:46:00 by marvin           ###   ########.fr       */
+/*   Created: 2026/03/08 16:08:30 by ali_shell         #+#    #+#             */
+/*   Updated: 2026/03/08 16:08:30 by ali_shell        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include "minishell.h"
 
@@ -51,6 +52,8 @@ static char	*read_token(char *input, int *i, t_strtype *stype)
 			q = input[(*i)++];
 			while (input[*i] && input[*i] != q)
 				(*i)++;
+			if (!input[*i])
+				break ;
 		}
 		(*i)++;
 	}

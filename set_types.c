@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   set_types.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ali_shell <ali_shell@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/07 02:31:08 by marvin            #+#    #+#             */
-/*   Updated: 2026/02/07 02:31:08 by marvin           ###   ########.fr       */
+/*   Created: 2026/03/08 16:08:36 by ali_shell         #+#    #+#             */
+/*   Updated: 2026/03/08 16:08:36 by ali_shell        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,7 @@ static void	split_node_loop(t_token **list)
 	}
 }
 
-void	set_types(t_token **list)
+int	set_types(t_token **list)
 {
 	t_token *tmp;
 
@@ -139,7 +139,7 @@ void	set_types(t_token **list)
 	tmp = *list;
 	split_node_loop(&tmp);
 	if(!check_syntax_errors(tmp))
-		return ;
+		return (0);
 	while(tmp && tmp->next)
 	{
 		if(is_one_sided(tmp) && !is_sign(tmp->next))
@@ -186,6 +186,7 @@ void	set_types(t_token **list)
 	}
 	tmp = *list;
 	set_built_in_cmds(&tmp);
+	return (1);
 }
 
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   built_in_cmds.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ali_shell <ali_shell@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/23 03:20:04 by marvin            #+#    #+#             */
-/*   Updated: 2026/02/23 03:20:04 by marvin           ###   ########.fr       */
+/*   Created: 2026/03/08 16:07:14 by ali_shell         #+#    #+#             */
+/*   Updated: 2026/03/08 16:07:14 by ali_shell        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,11 +73,13 @@ void	set_built_in_cmds(t_token **node)
 	}
 }
 
-void	echo(t_token **list)
+int	echo(t_token **list)
 {
-	int i;
+	int	i;
+	int	ret;
 
 	i = 0;
+	ret = 0;
 	while ((*list)->next && (*list)->next->value[0] == '-'
 		&& only_n_chars((*list)->next->value + 1))
 	{
@@ -85,15 +87,19 @@ void	echo(t_token **list)
 		i = 1;
 	}
 	*list = (*list)->next;
-	while(*list && !(is_sign(*list)))
+	while (*list && !(is_sign(*list)))
 	{
-		ft_printf("%s", (*list)->value);
+		if (ft_printf("%s", (*list)->value) == -1)
+			ret = 1;
 		if ((*list)->next && !is_sign((*list)->next))
-			ft_printf(" ");
+			if (ft_printf(" ") == -1)
+				ret = 1;
 		*list = (*list)->next;
 	}
-	if(!i)
-		ft_printf("\n");
+	if (!i)
+		if (ft_printf("\n") == -1)
+			ret = 1;
+	return (ret);
 }
 
 int	cd(char **args, char ***env)
@@ -110,7 +116,7 @@ int	cd(char **args, char ***env)
 	}
 	oldpwd = getcwd(NULL, 0);
 	if (!args[1])
-		path = getenv("HOME");
+		path = ft_getenv(*env, "HOME");
 	else
 		path = args[1];
 	if (!path)

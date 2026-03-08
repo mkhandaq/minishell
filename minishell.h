@@ -70,19 +70,20 @@ typedef struct s_tree {
 t_token	*set_list(char *input);
 t_tree	*build_tree(t_token *tokens);
 
-void	set_types(t_token **list);
+int		set_types(t_token **list);
 void    process_heredocs(t_token *list);
 void    set_signals(void);
-void    env(char **envt);
-void	pwd(void);
+int	env(char **envt);
+int	pwd(void);
+char	*ft_getenv(char **env, const char *name);
 void	set_built_in_cmds(t_token **node);
-void	echo(t_token **list);
+int	echo(t_token **list);
 void	free_list(t_token	**list);
 void	print_tree(t_tree *tree);
 void	free_tree(t_tree *tree);
 void	print_export(char **env);
 void    free_2d (char **args);
-void	expand_tokens(t_token *list, int exit_status);
+void	expand_tokens(t_token *list, int exit_status, char **env);
 
 char	*get_path(char *cmd, char **ev);
 
@@ -101,9 +102,12 @@ int		return_sign_len(t_token *node);
 int		is_file(t_token *node);
 int		cd(char **args, char ***env);
 int		redirections(t_token *list);
-int		execute_cmd(char **ev, t_token *list, int *last_exit);
+int		execute_cmd(char ***env, t_token *list, int *last_exit);
 int		execute(t_tree *tree, char ***env, int *last_exit);
 int		execute_pipe(t_tree *tree, char ***env, int *last_exit);
+int		execute_builtin(t_token *list, char ***envp, int *last_exit);
+
+char	**unset(char **env, char *removed_var);
 
 
 #endif
