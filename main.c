@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ali_shell <ali_shell@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 19:20:34 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/03/07 17:19:20 by marvin           ###   ########.fr       */
+/*   Updated: 2026/03/08 06:58:45 by ali_shell        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,9 @@ static void	shell_loop(char **env)
 		node = set_list(input);
 		set_types(&node);
 		process_heredocs(node);
-		tree = build_tree(node);//new
+		expand_tokens(node, last_exit);
+		set_built_in_cmds(&node);
+		tree = build_tree(node);
 		execute(tree, &env, &last_exit);
 		free_tree(tree);
 	}

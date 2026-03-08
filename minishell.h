@@ -82,6 +82,7 @@ void	print_tree(t_tree *tree);
 void	free_tree(t_tree *tree);
 void	print_export(char **env);
 void    free_2d (char **args);
+void	expand_tokens(t_token *list, int exit_status);
 
 char	*get_path(char *cmd, char **ev);
 

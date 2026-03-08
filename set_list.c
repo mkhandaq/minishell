@@ -12,7 +12,7 @@
 
 #include "minishell.h"
 
-static void	push(t_token **list, char *value)
+static void	push(t_token **list, char *value, t_strtype stype)
 {
 	t_token	*new;
 	t_token	*tmp;
@@ -26,6 +26,7 @@ static void	push(t_token **list, char *value)
 		return ;
 	new->value = ft_strdup(value);
 	new->type = TOK_KEYWORD;
+	new->strtype = stype;
 	new->is_exuted = 0;
 	new->next = NULL;
 	if (tmp)
@@ -34,44 +35,43 @@ static void	push(t_token **list, char *value)
 		*list = new;
 }
 
-static char	*read_token(char *input, int *i)
+static char	*read_token(char *input, int *i, t_strtype *stype)
 {
 	char	*result;
 	int		start;
-	int		len;
+	char	q;
 
 	start = *i;
-	if(!input)
+	if (!input)
 		return (NULL);
 	while (input[*i] && input[*i] != ' ')
 	{
-		if (input[*i] == '\'')
+		if (input[*i] == '\'' || input[*i] == '"')
 		{
-			(*i)++;
-			while (input[*i] && input[*i] != '\'')
-				(*i)++;
-		}
-		else if (input[*i] == '"')
-		{
-			(*i)++;
-			while (input[*i] && input[*i] != '"')
+			q = input[(*i)++];
+			while (input[*i] && input[*i] != q)
 				(*i)++;
 		}
 		(*i)++;
 	}
-	len = *i - start;
-	if ((input[start] == '\'' || input[start] == '"') && len >= 2)
-		result = ft_substr(input, start + 1, len - 2);
+	*stype = TOK_STR;
+	if (input[start] == '\'')
+		*stype = TOK_SING;
+	else if (input[start] == '"')
+		*stype = TOK_DUP;
+	if (*stype != TOK_STR && (*i - start) >= 2)
+		result = ft_substr(input, start + 1, *i - start - 2);
 	else
-		result = ft_substr(input, start, len);
+		result = ft_substr(input, start, *i - start);
 	return (result);
 }
 
 t_token	*set_list(char *input)
 {
-	t_token	*list;
-	char	*token;
-	int		i;
+	t_token		*list;
+	char		*token;
+	int			i;
+	t_strtype	stype;
 
 	list = NULL;
 	i = 0;
@@ -83,9 +83,9 @@ t_token	*set_list(char *input)
 			i++;
 		if (!input[i])
 			break ;
-		token = read_token(input, &i);
+		token = read_token(input, &i, &stype);
 		if (token && token[0])
-			push(&list, token);
+			push(&list, token, stype);
 		free(token);
 	}
 	return (list);

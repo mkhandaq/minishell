@@ -1,0 +1,105 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   expansion.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ali_shell <ali_shell@student.42.fr>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/03/08 00:00:00 by marvin            #+#    #+#             */
+/*   Updated: 2026/03/08 06:54:40 by ali_shell        ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "minishell.h"
+
+static char	*ft_charjoin(char *s, char c)
+{
+	char	*result;
+	int		len;
+
+	if (!s)
+	{
+		result = malloc(2);
+		if (!result)
+			return (NULL);
+		result[0] = c;
+		result[1] = '\0';
+		return (result);
+	}
+	len = ft_strlen(s);
+	result = malloc(len + 2);
+	if (!result)
+		return (free(s), NULL);
+	ft_memcpy(result, s, len);
+	result[len] = c;
+	result[len + 1] = '\0';
+	free(s);
+	return (result);
+}
+
+static char	*expand_dollar(const char *s, int *i, int exit_status)
+{
+	char	*var_name;
+	char	*value;
+	int		start;
+
+	(*i)++;
+	if (s[*i] == '?')
+	{
+		(*i)++;
+		return (ft_itoa(exit_status));
+	}
+	if (!ft_isalpha(s[*i]) && s[*i] != '_')
+		return (ft_strdup("$"));
+	start = *i;
+	while (s[*i] && (ft_isalnum(s[*i]) || s[*i] == '_'))
+		(*i)++;
+	var_name = ft_substr(s, start, *i - start);
+	if (!var_name)
+		return (NULL);
+	value = getenv(var_name);
+	free(var_name);
+	if (value)
+		return (ft_strdup(value));
+	return (ft_strdup(""));
+}
+
+static char	*expand_str(const char *s, int exit_status)
+{
+	char	*result;
+	char	*tmp;
+	int		i;
+
+	result = ft_strdup("");
+	i = 0;
+	while (s[i])
+	{
+		if (s[i] == '$' && (s[i + 1] == '?'
+				|| ft_isalpha(s[i + 1]) || s[i + 1] == '_'))
+		{
+			tmp = expand_dollar(s, &i, exit_status);
+			result = ft_strjoin(result, tmp);
+			free(tmp);
+		}
+		else
+			result = ft_charjoin(result, s[i++]);
+	}
+	return (result);
+}
+
+void	expand_tokens(t_token *list, int exit_status)
+{
+	char	*expanded;
+
+	while (list)
+	{
+		if (list->strtype != TOK_SING && list->type != TOK_LIMITER
+			&& list->value && ft_strchr(list->value, '$'))
+		{
+			expanded = expand_str(list->value, exit_status);
+			free(list->value);
+			list->value = expanded;
+		}
+		list = list->next;
+	}
+}
