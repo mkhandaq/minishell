@@ -12,17 +12,17 @@
 
 #include "minishell.h"
 
-void    free_2d (char **args)
+void	free_2d (char **args)
 {
-    int i;
+	int i;
 
-    i = 0;
-    while (args[i])
-    {
-        free(args[i]);
-        i++;
-    }
-    free(args);
+	i = 0;
+	while (args[i])
+	{
+		free(args[i]);
+		i++;
+	}
+	free(args);
 }
 
 char	**set_whole_command(t_token *list, char *cmd)

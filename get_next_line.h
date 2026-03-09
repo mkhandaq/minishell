@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkhandaq <mkhandaq@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ali_shell <ali_shell@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/01 19:42:32 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/02/11 19:21:33 by mkhandaq         ###   ########.fr       */
+/*   Updated: 2026/03/09 18:31:53 by ali_shell        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,12 @@
 #  define BUFFER_SIZE 42
 # endif
 
-char	*ft_strchr_GNL(const char *s, int c);
-char	*ft_strjoin_GNL(char *s1, char *s2);
-char	*ft_strdup_GNL(const char *s);
-char	*ft_substr_GNL(char const *s, unsigned int start, size_t len);
+char	*ft_strchr_gnl(const char *s, int c);
+char	*ft_strjoin_gnl(char *s1, char *s2);
+char	*ft_strdup_gnl(const char *s);
+char	*ft_substr_gnl(char const *s, unsigned int start, size_t len);
 char	*get_next_line(int fd);
-void	*ft_memcpy_GNL(void *dest, const void *src, size_t n);
-size_t	ft_strlen_GNL(const char *s);
+void	*ft_memcpy_gnl(void *dest, const void *src, size_t n);
+size_t	ft_strlen_gnl(const char *s);
 
 #endif

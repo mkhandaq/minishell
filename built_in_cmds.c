@@ -14,10 +14,10 @@
 
 int	is_built_in(t_token *node)
 {
-	if (node && (node->type == TOK_ECHO || node->type == TOK_CD 
-		|| node->type == TOK_EXIT || node->type == TOK_EXPORT
-		|| node->type == TOK_UNSET || node->type == TOK_PWD
-		|| node->type == TOK_ENV))
+	if (node && (node->type == TOK_ECHO || node->type == TOK_CD
+			|| node->type == TOK_EXIT || node->type == TOK_EXPORT
+			|| node->type == TOK_UNSET || node->type == TOK_PWD
+			|| node->type == TOK_ENV))
 		return (1);
 	return (0);
 }
@@ -37,27 +37,27 @@ static int	only_n_chars(const char *s)
 
 void	set_built_in_cmds(t_token **node)
 {
-	t_token *tmp;
+	t_token	*tmp;
 
 	tmp = *node;
-	while(tmp)
+	while (tmp)
 	{
-		if (tmp && !ft_strncmp(tmp->value, "echo", 4) 
+		if (tmp && !ft_strncmp(tmp->value, "echo", 4)
 			&& ft_strlen(tmp->value) == 4)
 			tmp->type = TOK_ECHO;
-		else if (tmp && !ft_strncmp(tmp->value, "cd", 2) 
+		else if (tmp && !ft_strncmp(tmp->value, "cd", 2)
 			&& ft_strlen(tmp->value) == 2)
 			tmp->type = TOK_CD;
 		else if (tmp && !ft_strncmp(tmp->value, "export", 6)
 			&& ft_strlen(tmp->value) == 6)
 			tmp->type = TOK_EXPORT;
-		else if (tmp && !ft_strncmp(tmp->value, "unset", 5) 
+		else if (tmp && !ft_strncmp(tmp->value, "unset", 5)
 			&& ft_strlen(tmp->value) == 5)
 			tmp->type = TOK_UNSET;
-		else if (tmp && !ft_strncmp(tmp->value, "env", 3) 
+		else if (tmp && !ft_strncmp(tmp->value, "env", 3)
 			&& ft_strlen(tmp->value) == 3)
 			tmp->type = TOK_ENV;
-		else if (tmp && !ft_strncmp(tmp->value, "pwd", 3) 
+		else if (tmp && !ft_strncmp(tmp->value, "pwd", 3)
 			&& ft_strlen(tmp->value) == 3)
 			tmp->type = TOK_PWD;
 		else if (tmp && !ft_strncmp(tmp->value, "exit", 4)

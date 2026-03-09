@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_split.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkhandaq <mkhandaq@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ali_shell <ali_shell@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 12:47:03 by mkhandaq          #+#    #+#             */
-/*   Updated: 2025/09/03 20:51:56 by mkhandaq         ###   ########.fr       */
+/*   Updated: 2026/03/09 18:19:24 by ali_shell        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,6 @@ char	**ft_split(char const *s, char c)
 		return (NULL);
 	return (splited);
 }
-
 
 /*char	**ft_split(char const *s, char c)
 {

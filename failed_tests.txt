@@ -24,3 +24,6 @@
    Command: nonexistent_cmd_xyz
    Expected exit: 127
    Got exit: 0
+
+ls *.txt
+
