@@ -38,23 +38,23 @@ static int	exec_no_path(char *cmd)
 	return (127);
 }
 
-static void	exec_child(t_token *list, char **whole_cmd, char **env)
+static void	exec_child(t_token *list, char **whole_cmd, char **env, char *path)
 {
 	if (!redirections(list))
 		exit(1);
-	execve(whole_cmd[0], whole_cmd, env);
+	execve(path, whole_cmd, env);
 	ft_putstr_fd("shellGuys: permission denied\n", 2);
 	exit(126);
 }
 
-static int	exec_fork(t_token *list, char **whole_cmd, char ***env)
+static int	exec_fork(t_token *list, char **whole_cmd, char ***env, char *path)
 {
 	pid_t	pid;
 	int		status;
 
 	pid = fork();
 	if (pid == 0)
-		exec_child(list, whole_cmd, *env);
+		exec_child(list, whole_cmd, *env, path);
 	waitpid(pid, &status, 0);
 	if (WIFEXITED(status))
 		return (WEXITSTATUS(status));
@@ -82,7 +82,7 @@ int	execute_cmd(char ***env, t_token *list, int *last_exit)
 	free(cmd);
 	if (!whole_cmd)
 		return (free(path), 0);
-	*last_exit = exec_fork(list, whole_cmd, env);
+	*last_exit = exec_fork(list, whole_cmd, env, path);
 	free_2d(whole_cmd);
 	free(path);
 	return (*last_exit);
