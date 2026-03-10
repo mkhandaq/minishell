@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipe.c                                             :+:      :+:    :+:   */
+/*   execute_pipe.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ali_shell <ali_shell@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -36,6 +36,14 @@ static void	right_child(int fd[2], t_tree *tree, char ***env, int *last_exit)
 	exit(execute(tree->right, env, last_exit));
 }
 
+static int	fork_failed(int *fd)
+{
+	perror("fork failed");
+	close(fd[0]);
+	close(fd[1]);
+	return (1);
+}
+
 int	execute_pipe(t_tree *tree, char ***env, int *last_exit)
 {
 	int		fd[2];
@@ -44,28 +52,15 @@ int	execute_pipe(t_tree *tree, char ***env, int *last_exit)
 	int		status;
 
 	if (pipe(fd) == -1)
-	{
-		perror("pipe failed");
-		return (1);
-	}
+		return (perror("pipe failed"), 1);
 	pid1 = fork();
 	if (pid1 == -1)
-	{
-		perror("fork failed");
-		close(fd[0]);
-		close(fd[1]);
-		return (1);
-	}
+		return (fork_failed(fd));
 	if (pid1 == 0)
 		left_child(fd, tree, env, last_exit);
 	pid2 = fork();
 	if (pid2 == -1)
-	{
-		perror("fork failed");
-		close(fd[0]);
-		close(fd[1]);
-		return (1);
-	}
+		return (fork_failed(fd));
 	if (pid2 == 0)
 		right_child(fd, tree, env, last_exit);
 	close(fd[0]);

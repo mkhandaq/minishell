@@ -22,47 +22,61 @@ int	is_built_in(t_token *node)
 	return (0);
 }
 
-static int	only_n_chars(const char *s)
+int	set_sign(t_token **node)
 {
-	if (!s || !*s)
+	if (node && (!ft_strncmp((*node)->value, "||", 2)))
+		(*node)->type = TOK_OR;
+	else if (node && (!ft_strncmp((*node)->value, "&&", 2)))
+		(*node)->type = TOK_AND;
+	else if (node && (!ft_strncmp((*node)->value, "|", 1)))
+		(*node)->type = TOK_PIPE;
+	else if (node && (!ft_strncmp((*node)->value, ">>", 2)))
+		(*node)->type = TOK_REDIR_APPEND;
+	else if (node && (!ft_strncmp((*node)->value, ">", 1)))
+		(*node)->type = TOK_REDIR_OUT;
+	else if (node && (!ft_strncmp((*node)->value, "<<", 2)))
+		(*node)->type = TOK_HEREDOC;
+	else if (node && (!ft_strncmp((*node)->value, "<", 1)))
+		(*node)->type = TOK_REDIR_IN;
+	else if (node && (!ft_strncmp((*node)->value, "(", 1)))
+		(*node)->type = TOK_OPENBRC;
+	else if (node && (!ft_strncmp((*node)->value, ")", 1)))
+		(*node)->type = TOK_CLOSEBRC;
+	else
 		return (0);
-	while (*s)
-	{
-		if (*s != 'n')
-			return (0);
-		s++;
-	}
 	return (1);
+}
+
+static int	get_builtin_type(const char *val)
+{
+	if (!ft_strncmp(val, "echo", 4) && ft_strlen(val) == 4)
+		return (TOK_ECHO);
+	if (!ft_strncmp(val, "cd", 2) && ft_strlen(val) == 2)
+		return (TOK_CD);
+	if (!ft_strncmp(val, "export", 6) && ft_strlen(val) == 6)
+		return (TOK_EXPORT);
+	if (!ft_strncmp(val, "unset", 5) && ft_strlen(val) == 5)
+		return (TOK_UNSET);
+	if (!ft_strncmp(val, "env", 3) && ft_strlen(val) == 3)
+		return (TOK_ENV);
+	if (!ft_strncmp(val, "pwd", 3) && ft_strlen(val) == 3)
+		return (TOK_PWD);
+	if (!ft_strncmp(val, "exit", 4) && ft_strlen(val) == 4)
+		return (TOK_EXIT);
+	return (-1);
 }
 
 void	set_built_in_cmds(t_token **node)
 {
 	t_token	*tmp;
+	int		type;
 
 	tmp = *node;
 	while (tmp)
 	{
-		if (tmp && !ft_strncmp(tmp->value, "echo", 4)
-			&& ft_strlen(tmp->value) == 4)
-			tmp->type = TOK_ECHO;
-		else if (tmp && !ft_strncmp(tmp->value, "cd", 2)
-			&& ft_strlen(tmp->value) == 2)
-			tmp->type = TOK_CD;
-		else if (tmp && !ft_strncmp(tmp->value, "export", 6)
-			&& ft_strlen(tmp->value) == 6)
-			tmp->type = TOK_EXPORT;
-		else if (tmp && !ft_strncmp(tmp->value, "unset", 5)
-			&& ft_strlen(tmp->value) == 5)
-			tmp->type = TOK_UNSET;
-		else if (tmp && !ft_strncmp(tmp->value, "env", 3)
-			&& ft_strlen(tmp->value) == 3)
-			tmp->type = TOK_ENV;
-		else if (tmp && !ft_strncmp(tmp->value, "pwd", 3)
-			&& ft_strlen(tmp->value) == 3)
-			tmp->type = TOK_PWD;
-		else if (tmp && !ft_strncmp(tmp->value, "exit", 4)
-			&& ft_strlen(tmp->value) == 4)
-			tmp->type = TOK_EXIT;
+		type = get_builtin_type(tmp->value);
+		if (type != -1)
+			tmp->type = type;
 		if (is_sign(tmp))
 		{
 			tmp = tmp->next;
@@ -71,76 +85,4 @@ void	set_built_in_cmds(t_token **node)
 		while (tmp && !is_sign(tmp))
 			tmp = tmp->next;
 	}
-}
-
-int	echo(t_token **list)
-{
-	int	i;
-	int	ret;
-
-	i = 0;
-	ret = 0;
-	while ((*list)->next && (*list)->next->value[0] == '-'
-		&& only_n_chars((*list)->next->value + 1))
-	{
-		*list = (*list)->next;
-		i = 1;
-	}
-	*list = (*list)->next;
-	while (*list && !(is_sign(*list)))
-	{
-		if (ft_printf("%s", (*list)->value) == -1)
-			ret = 1;
-		if ((*list)->next && !is_sign((*list)->next))
-			if (ft_printf(" ") == -1)
-				ret = 1;
-		*list = (*list)->next;
-	}
-	if (!i)
-		if (ft_printf("\n") == -1)
-			ret = 1;
-	return (ret);
-}
-
-int	cd(char **args, char ***env)
-{
-	char	*oldpwd;
-	char	*newpwd;
-	char	*path;
-	char	*tmp;
-
-	if (args[2])
-	{
-		ft_putstr_fd("shellGuys: cd: too many arguments\n", 2);
-		return (1);
-	}
-	oldpwd = getcwd(NULL, 0);
-	if (!args[1])
-		path = ft_getenv(*env, "HOME");
-	else
-		path = args[1];
-	if (!path)
-	{
-		ft_putstr_fd("shellGuys: cd: HOME not set\n", 2);
-		free(oldpwd);
-		return (1);
-	}
-	if (chdir(path) == -1)
-	{
-		ft_putstr_fd("shellGuys: cd: ", 2);
-		ft_putstr_fd(path, 2);
-		ft_putstr_fd(": No such file or directory\n", 2);
-		free(oldpwd);
-		return (1);
-	}
-	newpwd = getcwd(NULL, 0);
-	tmp = ft_strjoin("OLDPWD=", oldpwd);
-	*env = export(*env, tmp);
-	free(tmp);
-	tmp = ft_strjoin("PWD=", newpwd);
-	*env = export(*env, tmp);
-	free(tmp);
-	free(oldpwd);
-	free(newpwd);
-	return (0);
 }

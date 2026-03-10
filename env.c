@@ -12,6 +12,23 @@
 
 #include "minishell.h"
 
+int	env_has_var(char **env, char *name)
+{
+	int	len;
+	int	i;
+
+	len = ft_strlen(name);
+	i = 0;
+	while (env[i])
+	{
+		if (!ft_strncmp(env[i], name, len)
+			&& (env[i][len] == '=' || !env[i][len]))
+			return (1);
+		i++;
+	}
+	return (0);
+}
+
 char	*ft_getenv(char **env, const char *name)
 {
 	int	len;
@@ -28,6 +45,28 @@ char	*ft_getenv(char **env, const char *name)
 		i++;
 	}
 	return (NULL);
+}
+
+char	**dup_env(char **env)
+{
+	int		size;
+	int		i;
+	char	**new_env;
+
+	size = 0;
+	while (env[size])
+		size++;
+	new_env = malloc(sizeof(char *) * (size + 1));
+	if (!new_env)
+		return (NULL);
+	i = 0;
+	while (i < size)
+	{
+		new_env[i] = ft_strdup(env[i]);
+		i++;
+	}
+	new_env[size] = NULL;
+	return (new_env);
 }
 
 int	env(char **envt)
@@ -61,93 +100,4 @@ int	pwd(void)
 	}
 	free(cwd);
 	return (0);
-}
-
-char	**export(char **env, char *added_var)
-{
-	int		i;
-	int		name_len;
-	char	**new_env;
-
-	name_len = 0;
-	while (added_var[name_len] && added_var[name_len] != '=')
-		name_len++;
-	i = 0;
-	while (env[i])
-	{
-		if (!ft_strncmp(env[i], added_var, name_len)
-			&& env[i][name_len] == '=')
-		{
-			free(env[i]);
-			env[i] = ft_strdup(added_var);
-			return (env);
-		}
-		i++;
-	}
-	new_env = malloc(sizeof(char *) * (i + 2));
-	if (!new_env)
-		return (env);
-	i = 0;
-	while (env[i])
-	{
-		new_env[i] = ft_strdup(env[i]);
-		i++;
-	}
-	new_env[i] = ft_strdup(added_var);
-	new_env[i + 1] = NULL;
-	i = 0;
-	while (env[i])
-		free(env[i++]);
-	free(env);
-	return (new_env);
-}
-
-static int	is_found(char **env, char *var)
-{
-	int	i;
-
-	i = 0;
-	while (env[i])
-	{
-		if (!ft_strncmp(env[i], var, ft_strlen(var))
-			&& env[i][ft_strlen(var)] == '=')
-			return (1);
-		i++;
-	}
-	return (0);
-}
-
-char	**unset(char **env, char *removed_var)
-{
-	int		i;
-	int		j;
-	int		size;
-	char	**new_env;
-
-	if (!is_found(env, removed_var))
-		return (env);
-	size = 0;
-	while (env[size])
-		size++;
-	new_env = malloc(sizeof(char *) * size);
-	if (!new_env)
-		return (env);
-	i = 0;
-	j = 0;
-	while (env[i])
-	{
-		if (ft_strncmp(env[i], removed_var, ft_strlen(removed_var))
-			|| env[i][ft_strlen(removed_var)] != '=')
-		{
-			new_env[j] = ft_strdup(env[i]);
-			j++;
-		}
-		i++;
-	}
-	new_env[j] = NULL;
-	i = 0;
-	while (env[i])
-		free(env[i++]);
-	free(env);
-	return (new_env);
 }

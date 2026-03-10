@@ -12,83 +12,25 @@
 
 #include "minishell.h"
 
-void	print_error(char *error_message, int exit_code)
+static int	check_two_sided_pair(t_token *tmp)
 {
-	perror(error_message);
-	exit(exit_code);
-}
-
-static int	is_closed(t_token *node)
-{
-	t_token	*tmp;
-	int		count_open;
-
-	tmp = node;
-	count_open = 0;
-	while (tmp && count_open >= 0)
+	if (is_two_sided(tmp) && is_two_sided(tmp->next))
 	{
-		if (tmp->type == TOK_OPENBRC)
-			count_open++;
-		if (tmp->type == TOK_CLOSEBRC)
-			count_open--;
-		tmp = tmp->next;
-	}
-	if (count_open)
-		return (0);
-	return (1);
-}
-
-static int	check_brackets(t_token *node)
-{
-	t_token	*tmp;
-
-	tmp = node;
-	if (tmp && !is_closed(tmp))
-	{
-		ft_printf("shellGuys: CLOSE THAT BRACKET\n");
+		ft_printf("shellGuys: syntax error near unexpected token '%s'\n",
+			tmp->next->value);
 		return (0);
 	}
-	while (tmp && tmp->next)
+	if (is_two_sided(tmp) && tmp->next->type == TOK_CLOSEBRC)
 	{
-		if (tmp->type == TOK_CLOSEBRC || tmp->type == TOK_OPENBRC)
-		{
-			if (tmp->type == TOK_OPENBRC && is_two_sided(tmp->next))
-			{
-				ft_printf("shellGuys: parse error near `%s'\n",
-					tmp->next->value);
-				return (0);
-			}
-			if (tmp->type == TOK_OPENBRC && tmp->next->type == TOK_CLOSEBRC)
-			{
-				ft_printf("shellGuys: EMPTY BRACKET\n");
-				return (0);
-			}
-		}
-		if (tmp->type == TOK_CLOSEBRC && tmp->next->type == TOK_OPENBRC)
-		{
-			ft_printf("shellGuys: parse error near `('\n");
-			return (0);
-		}
-		if ((tmp->type == TOK_CMD || tmp->type == TOK_KEYWORD)
-			&& tmp->next->type == TOK_OPENBRC)
-		{
-			ft_printf("shellGuys: number expected\n");
-			return (0);
-		}
-		if (tmp->type == TOK_CLOSEBRC
-			&& (tmp->next->type == TOK_CMD || tmp->next->type == TOK_KEYWORD))
-		{
-			ft_printf("shellGuys: parse error near `%s'\n", tmp->next->value);
-			return (0);
-		}
-		tmp = tmp->next;
+		ft_printf("parse error near `%s'\n", tmp->next->value);
+		return (0);
 	}
 	return (1);
 }
 
 static int	check_two_sided(t_token *node)
 {
-	t_token *tmp;
+	t_token	*tmp;
 
 	tmp = node;
 	if (is_two_sided(tmp))
@@ -99,17 +41,8 @@ static int	check_two_sided(t_token *node)
 	}
 	while (tmp && tmp->next)
 	{
-		if(is_two_sided(tmp) && is_two_sided(tmp->next))
-		{
-			ft_printf("shellGuys: syntax error near unexpected token '%s'\n",
-				tmp->next->value);
+		if (!check_two_sided_pair(tmp))
 			return (0);
-		}
-		if (is_two_sided(tmp) && tmp->next->type == TOK_CLOSEBRC )
-		{
-			ft_printf("parse error near `%s'\n", tmp->next->value);
-			return (0);
-		}
 		tmp = tmp->next;
 	}
 	if (is_two_sided(tmp))
@@ -122,12 +55,12 @@ static int	check_two_sided(t_token *node)
 
 static int	check_one_sided(t_token *node)
 {
-	t_token *tmp;
+	t_token	*tmp;
 
 	tmp = node;
 	if (tmp && tmp->type == TOK_HEREDOC && is_sign(tmp->next))
 	{
-	    ft_printf("shellGuys: syntax error near unexpected token '%s'\n",
+		ft_printf("shellGuys: syntax error near unexpected token '%s'\n",
 			tmp->next->value);
 		return (0);
 	}

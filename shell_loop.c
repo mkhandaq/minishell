@@ -1,0 +1,62 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   shell_loop.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/03/10 16:29:56 by marvin            #+#    #+#             */
+/*   Updated: 2026/03/10 16:29:56 by marvin           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "minishell.h"
+
+static char	*shell_read(int last_exit)
+{
+	char	*input;
+
+	input = readline(GREEN "shellGuys" BLUE "$ " RESET);
+	if (!input)
+	{
+		ft_printf("exit\n");
+		exit(last_exit);
+	}
+	if (input[0] != '\0')
+		add_history(input);
+	return (input);
+}
+
+static void	shell_exec(t_token *node, t_tree **tree,
+		char ***env, int *last_exit)
+{
+	process_heredocs(node);
+	expand_tokens(node, *last_exit, *env);
+	set_built_in_cmds(&node);
+	*tree = build_tree(node);
+	execute(*tree, env, last_exit);
+	free_tree(*tree);
+}
+
+void	shell_loop(char **env)
+{
+	char	*input;
+	t_token	*node;
+	t_tree	*tree;
+	int		last_exit;
+
+	last_exit = 0;
+	while (1)
+	{
+		input = shell_read(last_exit);
+		node = set_list(input);
+		free(input);
+		if (!set_types(&node))
+		{
+			last_exit = 2;
+			free_list(&node);
+			continue ;
+		}
+		shell_exec(node, &tree, &env, &last_exit);
+	}
+}

@@ -3,31 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   execute_builtin.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ali_shell <ali_shell@student.42.fr>        +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/08 00:00:00 by marvin            #+#    #+#             */
-/*   Updated: 2026/03/08 15:01:44 by ali_shell        ###   ########.fr       */
+/*   Updated: 2026/03/10 15:40:57 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-static int	env_has_var(char **env, char *name)
-{
-	int	len;
-	int	i;
-
-	len = ft_strlen(name);
-	i = 0;
-	while (env[i])
-	{
-		if (!ft_strncmp(env[i], name, len)
-			&& (env[i][len] == '=' || !env[i][len]))
-			return (1);
-		i++;
-	}
-	return (0);
-}
 
 static int	exec_export(t_token *cmd, char ***env)
 {
@@ -46,17 +29,7 @@ static int	exec_export(t_token *cmd, char ***env)
 			continue ;
 		}
 		found = 1;
-		if (!is_valid_identifier(tmp->value))
-		{
-			ft_putstr_fd("shellGuys: export: `", 2);
-			ft_putstr_fd(tmp->value, 2);
-			ft_putstr_fd("': not a valid identifier\n", 2);
-			ret = 1;
-		}
-		else if (ft_strchr(tmp->value, '='))
-			*env = export(*env, tmp->value);
-		else if (!env_has_var(*env, tmp->value))
-			*env = export(*env, tmp->value);
+		ret += exec_export_var(tmp, env);
 		tmp = tmp->next;
 	}
 	if (!found)

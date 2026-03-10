@@ -3,14 +3,28 @@
 /*                                                        :::      ::::::::   */
 /*   export_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ali_shell <ali_shell@student.42.fr>        +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/07 00:00:00 by marvin            #+#    #+#             */
-/*   Updated: 2026/03/07 10:21:19 by ali_shell        ###   ########.fr       */
+/*   Updated: 2026/03/10 15:51:06 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+int	exec_export_var(t_token *tmp, char ***env)
+{
+	if (!is_valid_identifier(tmp->value))
+	{
+		ft_putstr_fd("shellGuys: export: `", 2);
+		ft_putstr_fd(tmp->value, 2);
+		ft_putstr_fd("': not a valid identifier\n", 2);
+		return (1);
+	}
+	if (ft_strchr(tmp->value, '=') || !env_has_var(*env, tmp->value))
+		*env = export(*env, tmp->value);
+	return (0);
+}
 
 int	is_valid_identifier(const char *str)
 {

@@ -57,32 +57,6 @@ int	return_sign_len(t_token *node)
 		return (1);
 	else if (node && (node->type == TOK_AND || node->type == TOK_OR
 			|| node->type == TOK_REDIR_APPEND || node->type == TOK_HEREDOC))
-			return (2);
+		return (2);
 	return (0);
 }
-
-int set_sign(t_token **node)
-{
-	if (node && (!ft_strncmp((*node)->value, "||", 2)))
-		(*node)->type = TOK_OR;
-	else if (node && (!ft_strncmp((*node)->value, "&&", 2)))
-		(*node)->type = TOK_AND;
-	else if (node && (!ft_strncmp((*node)->value, "|", 1)))
-		(*node)->type = TOK_PIPE;
-	else if (node && (!ft_strncmp((*node)->value, ">>", 2)))
-		(*node)->type = TOK_REDIR_APPEND;
-	else if (node && (!ft_strncmp((*node)->value, ">", 1)))
-		(*node)->type = TOK_REDIR_OUT;
-	else if (node && (!ft_strncmp((*node)->value, "<<", 2)))
-		(*node)->type = TOK_HEREDOC;
-	else if (node && (!ft_strncmp((*node)->value, "<", 1)))
-		(*node)->type = TOK_REDIR_IN;
-	else if (node && (!ft_strncmp((*node)->value, "(", 1)))
-		(*node)->type = TOK_OPENBRC;
-	else if (node && (!ft_strncmp((*node)->value, ")", 1)))
-		(*node)->type = TOK_CLOSEBRC;
-	else
-		return (0);
-	return (1);
-}
-

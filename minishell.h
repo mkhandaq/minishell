@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ali_shell <ali_shell@student.42.fr>        +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/09 18:35:22 by ali_shell         #+#    #+#             */
-/*   Updated: 2026/03/09 18:51:32 by ali_shell        ###   ########.fr       */
+/*   Updated: 2026/03/10 16:58:45 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,9 @@
 # include <readline/history.h>
 # include "libft/libft.h"
 # include "printf/printf.h"
-# include "get_next_line.h"
+# include "get_next_line/get_next_line.h"
 
-extern int	global_signal;
+extern int	g_signal;
 
 typedef enum e_toktype
 {
@@ -82,30 +82,36 @@ typedef struct s_tree
 	struct s_tree	*right;
 }	t_tree;
 
-
 t_token	*set_list(char *input);
+t_token	*find_last_op(t_token *tokens, int prec, t_token **prev);
+
 t_tree	*build_tree(t_token *tokens);
 
-int		set_types(t_token **list);
 void	process_heredocs(t_token *list);
 void	set_signals(void);
-int		env(char **envt);
-int		pwd(void);
-char	*ft_getenv(char **env, const char *name);
 void	set_built_in_cmds(t_token **node);
-int		echo(t_token **list);
 void	free_list(t_token	**list);
 void	print_tree(t_tree *tree);
 void	free_tree(t_tree *tree);
 void	print_export(char **env);
-void    free_2d (char **args);
+void	free_2d(char **args);
 void	expand_tokens(t_token *list, int exit_status, char **env);
+void	split_node_loop(t_token **list);
+void	shell_loop(char **env);
+void	split_sign_node(t_token **list);
 
 char	*get_path(char *cmd, char **ev);
+char	*ft_getenv(char **env, const char *name);
 
 char	**set_whole_command(t_token *list, char *cmd);
-char 	**export(char **env, char *added_var);
+char	**export(char **env, char *added_var);
+char	**dup_env(char **env);
+char	**unset(char **env, char *removed_var);
 
+int		echo(t_token **list);
+int		env(char **envt);
+int		pwd(void);
+int		set_types(t_token **list);
 int		is_valid_identifier(const char *str);
 int		builtin_exit(t_token *node);
 int		set_sign(t_token **node);
@@ -122,7 +128,10 @@ int		execute_cmd(char ***env, t_token *list, int *last_exit);
 int		execute(t_tree *tree, char ***env, int *last_exit);
 int		execute_pipe(t_tree *tree, char ***env, int *last_exit);
 int		execute_builtin(t_token *list, char ***envp, int *last_exit);
-
-char	**unset(char **env, char *removed_var);
+int		is_wrapped_in_parens(t_token *tokens);
+int		exec_export_var(t_token *tmp, char ***env);
+int		env_has_var(char **env, char *name);
+int		check_brackets(t_token *node);
+int		split_nonsign_node(t_token **list);
 
 #endif
