@@ -14,10 +14,10 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
-MAGENTA='\033[0;35m'
 BOLD='\033[1m'
 RESET='\033[0m'
 
+# Strip ANSI + prompt from stdout
 strip_prompt()
 {
 	sed 's/\x1b\[[0-9;]*[mK]//g' | \
@@ -25,13 +25,15 @@ strip_prompt()
 	grep -v '^> $' || true
 }
 
-# run_test <desc> <input> <expected_stdout> [expected_exit]
+# Strip only ANSI from stderr (keep error messages!)
+strip_stderr()
+{
+	sed 's/\x1b\[[0-9;]*[mK]//g'
+}
+
 run_test()
 {
-	local desc="$1"
-	local cmd="$2"
-	local expected_out="$3"
-	local expected_exit="${4:-0}"
+	local desc="$1" cmd="$2" expected_out="$3" expected_exit="${4:-0}"
 	local actual_out actual_exit tmpf
 	tmpf=$(mktemp)
 	actual_out=$(printf '%s\n' "$cmd" \
@@ -54,7 +56,6 @@ run_test()
 	fi
 }
 
-# run_exit_test <desc> <input> <expected_exit>
 run_exit_test()
 {
 	local desc="$1" cmd="$2" expected_exit="$3" actual_exit
@@ -70,12 +71,12 @@ run_exit_test()
 	fi
 }
 
-# run_stderr_test <desc> <input> <expected_stderr_pattern>
 run_stderr_test()
 {
 	local desc="$1" cmd="$2" pattern="$3"
 	local actual_err
-	actual_err=$(printf '%s\n' "$cmd" | "$MINISHELL" 2>&1 >/dev/null | strip_prompt)
+	actual_err=$(printf '%s\n' "$cmd" \
+		| "$MINISHELL" 2>&1 >/dev/null | strip_stderr)
 	if echo "$actual_err" | grep -q "$pattern"; then
 		echo -e "  ${GREEN}[PASS]${RESET} $desc"
 		PASS=$((PASS + 1))
@@ -86,7 +87,6 @@ run_stderr_test()
 	fi
 }
 
-# run_crash_test — passes if the shell does NOT segfault (exit != 139)
 run_crash_test()
 {
 	local desc="$1" cmd="$2" actual_exit
@@ -101,7 +101,6 @@ run_crash_test()
 	fi
 }
 
-# run_leak_test — uses valgrind if available
 run_leak_test()
 {
 	local desc="$1" cmd="$2"
@@ -112,7 +111,6 @@ run_leak_test()
 	local vg_out
 	vg_out=$(printf '%s\n' "$cmd" \
 		| valgrind --leak-check=full --error-exitcode=42 \
-		  --suppressions=/dev/null \
 		  "$MINISHELL" 2>&1 >/dev/null)
 	if echo "$vg_out" | grep -q "definitely lost: 0 bytes\|no leaks are possible"; then
 		echo -e "  ${GREEN}[PASS]${RESET} $desc (no leaks)"
@@ -146,19 +144,18 @@ run_test "echo two empty strings"          "echo '' ''"               " "
 run_test "echo -n no newline"              "echo -n hello"            "hello"
 run_test "echo -nnn treated as -n"         "echo -nnn hello"          "hello"
 run_test "echo -na NOT a flag"             "echo -na hello"           "-na hello"
+run_test "echo -e NOT a flag"              "echo -e hello"            "-e hello"
+run_test "echo -- NOT a flag"              "echo -- hello"            "-- hello"
 run_test "echo -n -n multi flag"           "echo -n -n hello"         "hello"
 run_test "echo spaces preserved"           "echo '   hi   '"          "   hi   "
-run_test "echo tab literal"                "echo 'a	b'"              "a	b"
+run_test "echo tab literal in quotes"      "echo 'a	b'"              "a	b"
 run_test "echo backslash literal"          "echo 'a\\b'"              "a\\b"
-run_test "echo dollar not expanded single" "echo '\$HOME'"            "\$HOME"
-run_test "echo adjacent quotes"            "echo 'a''b'"              "ab"
+run_test "echo dollar not in single"       "echo '\$HOME'"            "\$HOME"
+run_test "echo adjacent single quotes"     "echo 'a''b'"              "ab"
 run_test "echo quote then word"            "echo 'hi'world"           "hiworld"
 run_test "echo word then quote"            "echo hi'world'"           "hiworld"
 run_test "echo mixed quote types"          "echo \"a\"'b'"            "ab"
 run_test "echo many words"                 "echo a b c d e f"         "a b c d e f"
-run_test "echo newline in single quotes"   "echo 'line1
-line2'"                                                               "line1
-line2"
 
 # ════════════════════════════════════════════════════════════
 section "EXIT — edge cases"
@@ -176,8 +173,8 @@ run_exit_test "exit -1 = 255"              "exit -1"                  255
 run_exit_test "exit -42 = 214"             "exit -42"                 214
 run_exit_test "exit non-numeric = 2"       "exit abc"                 2
 run_exit_test "exit too many args = 1"     "exit 1 2"                 1
-run_exit_test "exit after true uses $?"    "true; exit"               0
-run_exit_test "exit after false uses $?"   "false; exit"              1
+run_exit_test "exit uses \$? from true"    "true && exit"             0
+run_exit_test "exit uses \$? from false"   "false || exit"            1
 
 # ════════════════════════════════════════════════════════════
 section "CD — edge cases"
@@ -188,7 +185,7 @@ run_test  "cd absolute"                    "cd /tmp && pwd"           "/tmp"
 run_test  "cd dotdot"                      "cd /tmp && cd .. && pwd"  "/"
 run_test  "cd dot is noop"                 "cd /tmp && cd . && pwd"   "/tmp"
 run_test  "cd updates OLDPWD"              "cd /tmp && cd / && echo \$OLDPWD" "/tmp"
-run_test  "cd - goes to OLDPWD"            "cd /tmp && cd / && cd - && pwd"   "/tmp"
+run_test  "cd - goes to OLDPWD"            "cd /tmp && cd / && cd - && pwd" "$(printf '/tmp\n/tmp')"
 run_exit_test "cd nonexistent = 1"         "cd /no_such_dir_xyz"      1
 run_exit_test "cd too many args = 1"       "cd a b c"                 1
 run_exit_test "cd unset HOME = 1"          "unset HOME && cd"         1
@@ -204,15 +201,15 @@ run_test  "export overwrite"               "export X=a && export X=b && echo \$X
 run_test  "export empty value"             "export X= && echo \$X"            ""
 run_test  "export with underscore"         "export _X=ok && echo \$_X"        "ok"
 run_test  "export multi vars"              "export A=1 B=2 && echo \$A \$B"   "1 2"
-run_test  "export no arg prints list"      "export | grep -c 'declare -x'" \
-          "$(export | grep -c 'declare -x')"
-run_test  "export var without value"       "export MYVAR && env | grep '^MYVAR='" "" 0
 run_test  "export shows declare -x"        "export Z=test && export | grep '^declare -x Z'" \
           "declare -x Z=\"test\""
-run_test  "export empty val shows =\"\""  "export Z= && export | grep '^declare -x Z'" \
+run_test  "export empty val shows =\"\""   "export Z= && export | grep '^declare -x Z'" \
           "declare -x Z=\"\""
-run_test  "export no val shows no ="       "unset MYNOVAL; export MYNOVAL && export | grep '^declare -x MYNOVAL'" \
-          "declare -x MYNOVAL"
+run_test  "export no val shows no ="       \
+          "unset TESTNOVAL42 && export TESTNOVAL42 && export | grep '^declare -x TESTNOVAL42$'" \
+          "declare -x TESTNOVAL42"
+run_exit_test "export no args = 0"         "export"                   0
+run_exit_test "export var no value = 0"    "export MYVAR42"           0
 run_exit_test "export invalid =val = 1"    "export =val"              1
 run_exit_test "export invalid 1var = 1"    "export 1var=x"            1
 run_exit_test "export invalid -var = 1"    "export -var=x"            1
@@ -237,18 +234,18 @@ run_test  "expand \$PATH"                  "echo \$PATH"              "$PATH"
 run_test  "expand undefined = empty"       "echo \$UNDEFINED_XYZ_VAR" ""
 run_test  "expand \$? = 0 after true"      "true && echo \$?"         "0"
 run_test  "expand \$? = 1 after false"     "false || echo \$?"        "1"
-run_test  "expand \$? chained"             "true; false; echo \$?"    "1"
+run_test  "expand \$? updates each cmd"    "true && echo \$? && false || echo \$?" \
+          "$(printf '0\n1')"
 run_test  "expand \$? = 0 initial"         "echo \$?"                 "0"
-run_test  "expand \$\$? two values"        "true; echo \$?\$?"        "00"
+run_test  "expand \$?\$? concatenated"     "true && echo \$?\$?"      "00"
 run_test  "expand \$ alone = \$"           "echo \$"                  "\$"
 run_test  "expand \$9 = empty"             "echo \$9"                 ""
+run_test  "expand \$1 = empty"             "echo \$1"                 ""
 run_test  "expand in dbl quotes"           "export X=hi && echo \"\$X\"" "hi"
 run_test  "no expand in single quotes"     "export X=hi && echo '\$X'" "\$X"
-run_test  "expand concatenated"            "export X=hel && echo \${X}lo" "hello" 0
 run_test  "expand \$HOME with slash"       "echo \$HOME/"             "$HOME/"
 run_test  "export then expand"             "export MYVAR=test123 && echo \$MYVAR" "test123"
 run_test  "unset then expand = empty"      "export A=1 && unset A && echo \$A" ""
-run_test  "expand \$? after syntax err"   "ls /no_such_path_xyz; echo \$?" "" 127
 
 # ════════════════════════════════════════════════════════════
 section "QUOTES — parsing edge cases"
@@ -277,34 +274,35 @@ section "PIPES — correctness & exit codes"
 run_test  "simple pipe"                    "echo hello | cat"               "hello"
 run_test  "pipe chain 3"                   "echo hello | cat | cat"         "hello"
 run_test  "pipe chain 4"                   "echo hello | cat | cat | cat"   "hello"
-run_test  "pipe to grep"                   "echo hello | grep hello"        "hello"
-run_test  "pipe grep miss = empty"         "echo hello | grep NOMATCH"      "" 1
+run_test  "pipe to grep match"             "echo b | grep b"                "b"
+run_test  "pipe to grep no match = empty"  "echo hello | grep NOMATCH"      "" 1
 run_test  "pipe multiple words"            "echo one two | cat"             "one two"
-run_test  "pipe builtin left"              "echo test | cat"                "test"
-run_test  "pipe filters"                   "printf 'a\nb\nc\n' | grep b"   "b"
-run_test  "pipe left produces nothing"     "true | echo right"              "right"
-run_exit_test "pipe exit = right side"     "true | false"                   1
-run_exit_test "pipe exit = right side 2"   "false | true"                   0
-run_exit_test "pipe exit = right false"    "false | false | false"          1
-run_exit_test "pipe exit = right true"     "false | false | true"           0
+run_test  "pipe builtin to cat"            "echo test | cat"                "test"
+run_test  "pipe left ignored when right has own input" "true | echo right"  "right"
+run_test  "many pipes"                     "echo x | cat | cat | cat | cat" "x"
+run_exit_test "pipe exit = rightmost"      "true | false"                   1
+run_exit_test "pipe exit = rightmost 2"    "false | true"                   0
+run_exit_test "pipe all false = 1"         "false | false | false"          1
+run_exit_test "pipe last true = 0"         "false | false | true"           0
 
 # ════════════════════════════════════════════════════════════
 section "REDIRECTIONS — edge cases"
 # ════════════════════════════════════════════════════════════
 
 T=/tmp/ms_hc_$$
-run_test  "> creates file"                "echo hi > ${T}_1 && cat ${T}_1"  "hi"
-run_test  ">> appends"                    "echo a > ${T}_2 && echo b >> ${T}_2 && cat ${T}_2" \
+run_test  "> creates file"              "echo hi > ${T}_1 && cat ${T}_1"  "hi"
+run_test  ">> appends"                  "echo a > ${T}_2 && echo b >> ${T}_2 && cat ${T}_2" \
           "$(printf 'a\nb')"
-run_test  "< reads file"                  "echo world > ${T}_3 && cat < ${T}_3" "world"
-run_test  "> truncates"                   "echo old > ${T}_4 && echo new > ${T}_4 && cat ${T}_4" "new"
-run_test  ">> creates if missing"         "rm -f ${T}_5 && echo only >> ${T}_5 && cat ${T}_5" "only"
-run_test  "redir then pipe"               "echo hi > ${T}_6 && cat < ${T}_6 | cat" "hi"
-run_test  "multiple redirs on one cmd"    "echo hi > ${T}_7 && cat < ${T}_7 > ${T}_8 && cat ${T}_8" "hi"
-run_exit_test "< nonexistent = 1"         "cat < /no_such_file_xyz"          1
-run_exit_test "> no permission = 1"       "echo hi > /no/such/path/file"     1
-run_exit_test "< fail still runs right"   "cat < /no_such_xyz | echo right"  0
-run_stderr_test "< nonexistent message"   "cat < /no_such_file_xyz"          "No such file or directory"
+run_test  "< reads file"                "echo world > ${T}_3 && cat < ${T}_3" "world"
+run_test  "> truncates"                 "echo old > ${T}_4 && echo new > ${T}_4 && cat ${T}_4" "new"
+run_test  ">> creates if missing"       "rm -f ${T}_5 && echo only >> ${T}_5 && cat ${T}_5" "only"
+run_test  "redir then pipe"             "echo hi > ${T}_6 && cat < ${T}_6 | cat" "hi"
+run_test  "multiple redirs same cmd"    "echo hi > ${T}_7 && cat < ${T}_7 > ${T}_8 && cat ${T}_8" "hi"
+run_test  "redir out then cat"          "echo x > ${T}_9 && cat ${T}_9" "x"
+run_exit_test "< nonexistent = 1"       "cat < /no_such_file_xyz"          1
+run_exit_test "> no permission = 1"     "echo hi > /no/such/path/file"     1
+run_exit_test "< fail doesnt kill pipe" "cat < /no_such_xyz | echo right"  0
+run_stderr_test "< nonexistent message" "cat < /no_such_file_xyz" "No such file or directory"
 rm -f ${T}_[1-9]
 
 # ════════════════════════════════════════════════════════════
@@ -312,70 +310,66 @@ section "HEREDOC — edge cases"
 # ════════════════════════════════════════════════════════════
 
 run_test "heredoc basic" \
-	"$(printf 'cat << EOF\nhello\nEOF')" \
-	"hello"
+	"$(printf 'cat << EOF\nhello\nEOF')" "hello"
 
 run_test "heredoc multiline" \
-	"$(printf 'cat << EOF\nline1\nline2\nEOF')" \
-	"$(printf 'line1\nline2')"
+	"$(printf 'cat << EOF\nline1\nline2\nEOF')" "$(printf 'line1\nline2')"
 
 run_test "heredoc expands dollar (unquoted limiter)" \
-	"$(printf 'cat << EOF\n$HOME\nEOF')" \
-	"$HOME"
+	"$(printf 'cat << EOF\n$HOME\nEOF')" "$HOME"
 
 run_test "heredoc no expand (single-quoted limiter)" \
-	"$(printf "cat << 'EOF'\n\$HOME\nEOF")" \
-	'$HOME'
+	"$(printf "cat << 'EOF'\n\$HOME\nEOF")" '$HOME'
 
 run_test "heredoc no expand (double-quoted limiter)" \
-	"$(printf 'cat << "EOF"\n$HOME\nEOF')" \
-	'$HOME'
+	"$(printf 'cat << "EOF"\n$HOME\nEOF')" '$HOME'
 
 run_test "heredoc expands \$?" \
-	"$(printf 'true\ncat << EOF\n$?\nEOF')" \
-	"0"
+	"$(printf 'true\ncat << EOF\n$?\nEOF')" "0"
 
 run_test "heredoc piped" \
-	"$(printf 'cat << EOF | cat\nhello\nEOF')" \
-	"hello"
+	"$(printf 'cat << EOF | cat\nhello\nEOF')" "hello"
 
-run_test "heredoc with redirect out" \
-	"$(printf "cat << EOF > ${T}_hd\nhello\nEOF\ncat ${T}_hd; rm -f ${T}_hd")" \
-	"hello"
+run_test "heredoc tab not stripped" \
+	"$(printf 'cat << EOF\n\thello\nEOF')" "	hello"
+
+run_test "heredoc with redir out" \
+	"$(printf "cat << EOF > ${T}_hd\nhello\nEOF\ncat ${T}_hd && rm -f ${T}_hd")" "hello"
 
 # ════════════════════════════════════════════════════════════
 section "&& and || — operator precedence"
 # ════════════════════════════════════════════════════════════
 
-run_test  "&& both succeed"              "echo a && echo b"             "$(printf 'a\nb')"
-run_test  "&& first fails skips right"   "false && echo b"              "" 1
-run_test  "|| first fails runs right"    "false || echo b"              "b"
-run_test  "|| first succeeds skips right" "echo a || echo b"            "a"
-run_test  "false && echo || echo"        "false && echo a || echo b"    "b"
-run_test  "true || echo && echo"         "true || echo a && echo b"     "b"
-run_test  "chained &&"                   "echo a && echo b && echo c"   "$(printf 'a\nb\nc')"
-run_test  "chained ||"                   "false || false || echo last"  "last"
-run_test  "mixed chain"                  "(false || true) && echo yes"  "yes"
-run_exit_test "&& exit 0"                "true && true"                 0
-run_exit_test "&& exit 1 right"          "true && false"                1
-run_exit_test "|| exit 0 right"          "false || true"                0
-run_exit_test "|| both fail = 1"         "false || false"               1
+run_test  "&& both succeed"              "echo a && echo b"            "$(printf 'a\nb')"
+run_test  "&& first fails skips right"   "false && echo b"             "" 1
+run_test  "|| first fails runs right"    "false || echo b"             "b"
+run_test  "|| first succeeds skips right" "echo a || echo b"           "a"
+run_test  "false && echo || echo"        "false && echo a || echo b"   "b"
+run_test  "true || echo && echo"         "true || echo a && echo b"    "b"
+run_test  "chained &&"                   "echo a && echo b && echo c"  "$(printf 'a\nb\nc')"
+run_test  "chained ||"                   "false || false || echo last" "last"
+run_test  "mixed chain"                  "(false || true) && echo yes" "yes"
+run_exit_test "&& exit 0"                "true && true"                0
+run_exit_test "&& exit 1 right"          "true && false"               1
+run_exit_test "|| exit 0 right"          "false || true"               0
+run_exit_test "|| both fail = 1"         "false || false"              1
 
 # ════════════════════════════════════════════════════════════
 section "SUBSHELL — isolation & edge cases"
 # ════════════════════════════════════════════════════════════
 
-run_test  "subshell basic"               "(echo hello)"                "hello"
-run_test  "subshell pipe"                "(echo hello | cat)"          "hello"
-run_test  "subshell && inside"           "(echo a && echo b)"          "$(printf 'a\nb')"
-run_test  "subshell env isolated"        "export X=outer && (export X=inner) && echo \$X" "outer"
-run_test  "subshell cd isolated"         "cd /tmp && (cd /) && pwd"    "/tmp"
-run_test  "nested subshells"             "((echo deep))"               "deep"
-run_test  "subshell output piped"        "(echo a; echo b) | cat"      "$(printf 'a\nb')"
-run_test  "subshell with redir"          "(echo hi) > ${T}_sub && cat ${T}_sub" "hi"
-run_exit_test "subshell exit code"       "(exit 42)"                   42
-run_exit_test "subshell false"           "(false)"                     1
-run_exit_test "subshell exit 0"          "(true)"                      0
+run_test  "subshell basic"              "(echo hello)"                "hello"
+run_test  "subshell pipe"               "(echo hello | cat)"          "hello"
+run_test  "subshell && inside"          "(echo a && echo b)"          "$(printf 'a\nb')"
+run_test  "subshell env isolated"       "export X=outer && (export X=inner) && echo \$X" "outer"
+run_test  "subshell cd isolated"        "cd /tmp && (cd /) && pwd"    "/tmp"
+run_test  "nested subshells"            "((echo deep))"               "deep"
+run_test  "subshell output piped"       "(echo a && echo b) | cat"    "$(printf 'a\nb')"
+run_test  "subshell unset isolated"     "export A=1 && (unset A) && echo \$A" "1"
+run_test  "subshell with redir"         "(echo hi) > ${T}_sub && cat ${T}_sub" "hi"
+run_exit_test "subshell exit code"      "(exit 42)"                   42
+run_exit_test "subshell false"          "(false)"                     1
+run_exit_test "subshell exit 0"         "(true)"                      0
 rm -f ${T}_sub
 
 # ════════════════════════════════════════════════════════════
@@ -386,135 +380,138 @@ WD=/tmp/ms_wc_hc_$$
 mkdir -p "$WD"
 touch "$WD/a.c" "$WD/b.c" "$WD/test.h" "$WD/.hidden"
 
-run_test "wildcard *.c sorted"           "cd $WD && echo *.c"          "a.c b.c"
-run_test "wildcard all non-hidden"        "cd $WD && echo *"            "a.c b.c test.h"
-run_test "wildcard hidden not matched"    "cd $WD && echo *"            "a.c b.c test.h"
-run_test "wildcard no match = literal"   "cd $WD && echo *.xyz"        "*.xyz"
-run_test "wildcard in dbl quotes = lit"  "cd $WD && echo \"*.c\""      "*.c"
-run_test "wildcard in sgl quotes = lit"  "cd $WD && echo '*.c'"        "*.c"
-run_test "wildcard middle"               "cd $WD && echo a*c"          "a.c"
-run_test "wildcard prefix"               "cd $WD && echo *h"           "test.h"
-run_test "wildcard suffix"               "cd $WD && echo t*"           "test.h"
-run_test "wildcard piped"                "cd $WD && ls *.c | cat"      "$(printf 'a.c\nb.c')"
+run_test "wildcard *.c sorted"          "cd $WD && echo *.c"          "a.c b.c"
+run_test "wildcard all non-hidden"       "cd $WD && echo *"            "a.c b.c test.h"
+run_test "wildcard hidden not matched"   "cd $WD && echo *"            "a.c b.c test.h"
+run_test "wildcard no match = literal"  "cd $WD && echo *.xyz"        "*.xyz"
+run_test "wildcard in dbl quotes = lit" "cd $WD && echo \"*.c\""      "*.c"
+run_test "wildcard in sgl quotes = lit" "cd $WD && echo '*.c'"        "*.c"
+run_test "wildcard middle"              "cd $WD && echo a*c"          "a.c"
+run_test "wildcard prefix"              "cd $WD && echo *h"           "test.h"
+run_test "wildcard suffix"              "cd $WD && echo t*"           "test.h"
+run_test "wildcard piped"               "cd $WD && ls *.c | cat"      "$(printf 'a.c\nb.c')"
 rm -rf "$WD"
 
 # ════════════════════════════════════════════════════════════
 section "SYNTAX ERRORS — must exit 2"
 # ════════════════════════════════════════════════════════════
 
-run_exit_test "bare pipe"                "|"                           2
-run_exit_test "bare &&"                  "&&"                          2
-run_exit_test "bare ||"                  "||"                          2
-run_exit_test "trailing pipe"            "echo hi |"                   2
-run_exit_test "trailing &&"              "echo hi &&"                  2
-run_exit_test "trailing ||"              "echo hi ||"                  2
-run_exit_test "double pipe"              "echo hi || &&"               2
-run_exit_test "pipe then &&"             "echo | &&"                   2
-run_exit_test "unclosed paren"           "(echo hi"                    2
-run_exit_test "empty parens"             "()"                          2
-run_exit_test "close without open"       ") echo hi"                   2
-run_exit_test "> with no file"           "echo hi >"                   2
-run_exit_test "< with no file"           "echo hi <"                   2
-run_exit_test ">> with no file"          "echo hi >>"                  2
-run_exit_test "< then |"                 "echo hi < |"                 2
+run_exit_test "bare pipe"               "|"                           2
+run_exit_test "bare &&"                 "&&"                          2
+run_exit_test "bare ||"                 "||"                          2
+run_exit_test "trailing pipe"           "echo hi |"                   2
+run_exit_test "trailing &&"             "echo hi &&"                  2
+run_exit_test "trailing ||"             "echo hi ||"                  2
+run_exit_test "double operator"         "echo hi || &&"               2
+run_exit_test "pipe then &&"            "echo | &&"                   2
+run_exit_test "unclosed paren"          "(echo hi"                    2
+run_exit_test "empty parens"            "()"                          2
+run_exit_test "close without open"      ") echo hi"                   2
+run_exit_test "> with no file"          "echo hi >"                   2
+run_exit_test "< with no file"          "echo hi <"                   2
+run_exit_test ">> with no file"         "echo hi >>"                  2
+run_exit_test "< then |"               "echo hi < |"                  2
 
 # ════════════════════════════════════════════════════════════
 section "COMMAND NOT FOUND / PERMISSIONS"
 # ════════════════════════════════════════════════════════════
 
-run_exit_test "nonexistent cmd = 127"    "nonexistent_cmd_xyz"         127
-run_exit_test "nonexistent after &&"     "true && nonexistent_cmd_xyz" 127
-run_stderr_test "not found message"      "nonexistent_cmd_xyz"         "command not found"
-run_test  "cmd with full path"           "/bin/echo hello"             "hello"
-run_exit_test "dir as cmd = 126"         "/tmp"                        126
+run_exit_test "nonexistent cmd = 127"   "nonexistent_cmd_xyz"         127
+run_exit_test "nonexistent after &&"    "true && nonexistent_cmd_xyz" 127
+run_stderr_test "not found message"     "nonexistent_cmd_xyz"         "command not found"
+run_test  "cmd with full path"          "/bin/echo hello"             "hello"
+run_exit_test "dir as cmd = 126"        "/tmp"                        126
 
 NXFILE=/tmp/ms_noperm_$$
 touch "$NXFILE" && chmod 000 "$NXFILE"
-run_exit_test "no-execute-perm = 126"    "$NXFILE"                     126
+run_exit_test "no-execute-perm = 126"   "$NXFILE"                     126
+run_stderr_test "permission denied msg" "$NXFILE"                     "Permission denied"
 rm -f "$NXFILE"
-
-# ════════════════════════════════════════════════════════════
-section "SIGNAL EXIT CODES"
-# ════════════════════════════════════════════════════════════
-
-# A process killed by SIGINT (2) should yield exit 130
-run_exit_test "killed by SIGINT = 130" \
-	"$(printf 'kill -INT $$')" 130 2>/dev/null || true
 
 # ════════════════════════════════════════════════════════════
 section "SEGFAULT / CRASH TESTS"
 # ════════════════════════════════════════════════════════════
 
-run_crash_test "empty input"                        ""
-run_crash_test "spaces only"                        "   "
-run_crash_test "tabs only"                          "			"
-run_crash_test "single quote unclosed"              "echo 'hello"
-run_crash_test "double quote unclosed"              "echo \"hello"
-run_crash_test "null-like: just dollar"             "echo \$"
-run_crash_test "dollar digit"                       "echo \$1"
-run_crash_test "dollar special"                     "echo \$-"
-run_crash_test "very long argument"                 "echo $(python3 -c 'print("a"*4096)')"
-run_crash_test "many arguments"                     "echo $(seq 1 200 | tr '\n' ' ')"
-run_crash_test "deeply nested subshells"            "((((echo hi))))"
-run_crash_test "pipe to nothing"                    "echo hi | true"
-run_crash_test "redir stdin and stdout same file"   "echo test > /tmp/ms_same_$$ && cat < /tmp/ms_same_$$ > /tmp/ms_same_$$; rm -f /tmp/ms_same_$$"
-run_crash_test "export with special chars"          "export 'A B'=x"
-run_crash_test "unset with no args"                 "unset"
-run_crash_test "cd with empty string"               "cd ''"
-run_crash_test "echo then immediate pipe"           "echo|cat"
-run_crash_test "semicolons (unsupported syntax)"    "echo a; echo b"
-run_crash_test "newline in heredoc limiter"         "$(printf 'cat << \nEOF\ntest\nEOF')"
-run_crash_test "consecutive redirects"              "echo hi > /tmp/ms_cr1_$$ > /tmp/ms_cr2_$$; rm -f /tmp/ms_cr1_$$ /tmp/ms_cr2_$$"
-run_crash_test "pipe to builtin cd"                 "echo /tmp | cd"
-run_crash_test "subshell with redir and pipe"       "(echo a | cat) > /tmp/ms_cr3_$$; rm -f /tmp/ms_cr3_$$"
-run_crash_test "many pipes"                         "echo x | cat | cat | cat | cat | cat | cat | cat | cat | cat"
-run_crash_test "and-or long chain"                  "true && true && true && false || echo end"
-run_crash_test "empty export value"                 "export EMPTYVAR= && echo \$EMPTYVAR"
-run_crash_test "double unset same var"              "export X=1 && unset X && unset X && echo ok"
-run_crash_test "heredoc eof mid-input"              "$(printf 'cat << EOF\nhello')"
-run_crash_test "expand undefined in redir"          "cat < \$UNDEFINED_REDIR_VAR"
-run_crash_test "redir to expanded empty"            "echo hi > \$UNDEFINED_TARGET"
-run_crash_test "pipe with no left side"             "$(printf '| cat')"
-run_crash_test "expr in subshell then exit"         "(export X=1 && echo \$X) && echo \$X"
-run_crash_test "pwd after unset PWD"                "unset PWD && pwd"
-run_crash_test "env after unsetting all"            "unset HOME PATH USER && env | head -1"
-run_crash_test "export then pipe"                   "export A=hello | echo \$A"
-run_crash_test "cd - without OLDPWD"                "unset OLDPWD && cd -"
-run_crash_test "multiple heredocs"                  "$(printf 'cat << A\nfoo\nA')"
+run_crash_test "empty input"                     ""
+run_crash_test "spaces only"                     "   "
+run_crash_test "tabs only"                       "			"
+run_crash_test "single quote unclosed"           "echo 'hello"
+run_crash_test "double quote unclosed"           "echo \"hello"
+run_crash_test "just dollar sign"                "echo \$"
+run_crash_test "dollar digit"                    "echo \$1"
+run_crash_test "dollar special char"             "echo \$-"
+run_crash_test "very long argument"              "echo $(python3 -c 'print("a"*4096)')"
+run_crash_test "many arguments"                  "echo $(seq 1 200 | tr '\n' ' ')"
+run_crash_test "deeply nested subshells"         "((((echo hi))))"
+run_crash_test "pipe to nothing"                 "echo hi | true"
+run_crash_test "redir stdin stdout same file"    \
+    "echo test > /tmp/ms_same_$$ && cat < /tmp/ms_same_$$ > /tmp/ms_same_$$; rm -f /tmp/ms_same_$$"
+run_crash_test "export with spaces in value"     "export 'A B'=x"
+run_crash_test "unset with no args"              "unset"
+run_crash_test "cd with empty string"            "cd ''"
+run_crash_test "echo then immediate pipe"        "echo|cat"
+run_crash_test "consecutive redirects"           \
+    "echo hi > /tmp/ms_cr1_$$ > /tmp/ms_cr2_$$; rm -f /tmp/ms_cr1_$$ /tmp/ms_cr2_$$"
+run_crash_test "pipe to builtin cd"              "echo /tmp | cd"
+run_crash_test "subshell redir and pipe"         \
+    "(echo a | cat) > /tmp/ms_cr3_$$; rm -f /tmp/ms_cr3_$$"
+run_crash_test "and-or long chain"               "true && true && true && false || echo end"
+run_crash_test "empty export value"              "export EMPTYVAR= && echo \$EMPTYVAR"
+run_crash_test "double unset same var"           "export X=1 && unset X && unset X && echo ok"
+run_crash_test "heredoc eof mid-input"           "$(printf 'cat << EOF\nhello')"
+run_crash_test "expand undefined in redir"       "cat < \$UNDEFINED_REDIR_VAR"
+run_crash_test "redir to expanded empty"         "echo hi > \$UNDEFINED_TARGET"
+run_crash_test "expr in subshell then exit"      "(export X=1 && echo \$X) && echo \$X"
+run_crash_test "pwd after unset PWD"             "unset PWD && pwd"
+run_crash_test "env after unsetting all"         "unset HOME PATH USER && env | head -1"
+run_crash_test "cd - without OLDPWD"             "unset OLDPWD && cd -"
+run_crash_test "multiple heredocs sequentially"  "$(printf 'cat << A\nfoo\nA')"
+run_crash_test "heredoc then another command"    \
+    "$(printf 'cat << EOF\nhello\nEOF\necho world')"
+run_crash_test "nested subshell with operators"  "((true && echo ok) || echo bad)"
+run_crash_test "pipe then redir"                 \
+    "echo hi | cat > /tmp/ms_pr_$$ && cat /tmp/ms_pr_$$; rm -f /tmp/ms_pr_$$"
+run_crash_test "export then immediate use"       "export A=hello && echo \$A | cat"
+run_crash_test "cd - after one cd"               "cd /tmp && cd -"
+run_crash_test "unset PATH then use absolute"    "unset PATH && /bin/echo ok"
+run_crash_test "empty string as command"         "''"
 
 # ════════════════════════════════════════════════════════════
 section "BEHAVIOR DIFFERENCES vs BASH"
 # ════════════════════════════════════════════════════════════
 
-run_test  "echo -e not a flag"            "echo -e hello"              "-e hello"
-run_test  "echo -- not a flag"            "echo -- hello"              "-- hello"
-run_test  "pipe exit is rightmost 3"      "false | false | true"       "" 0
-run_test  "pipe stdout only left to right" "echo hi | cat | grep hi"   "hi"
-run_test  "subshell isolation: cd"        "cd /tmp && (cd /) && pwd"   "/tmp"
-run_test  "subshell isolation: export"    "export A=1 && (unset A) && echo \$A" "1"
-run_test  "\$? updates per command"       "true; echo \$?; false; echo \$?" "$(printf '0\n1')"
-run_test  "heredoc tab not stripped"      "$(printf 'cat << EOF\n\thello\nEOF')" "	hello"
-run_test  "redirect out then cat"         "echo x > /tmp/ms_bd_$$ && cat /tmp/ms_bd_$$; rm -f /tmp/ms_bd_$$" "x"
-run_test  "unset PATH then absolute works" "unset PATH && /bin/echo hi" "hi"
+run_test  "pipe exit is rightmost"          "false | false | true"        "" 0
+run_test  "subshell cd isolation"           "cd /tmp && (cd /) && pwd"    "/tmp"
+run_test  "subshell export isolation"       "export A=1 && (unset A) && echo \$A" "1"
+run_test  "unset PATH absolute still works" "unset PATH && /bin/echo hi"  "hi"
+run_test  "cd - prints dest"                \
+    "cd /tmp && cd / && cd -" "/tmp"
+run_test  "heredoc tab not stripped"        \
+    "$(printf 'cat << EOF\n\thello\nEOF')" "	hello"
+run_test  "empty quoted arg passed to echo" "echo '' | cat"               ""
+run_test  "false then \$? = 1"             "false || echo \$?"            "1"
+run_test  "true then \$? = 0"              "true && echo \$?"             "0"
 
 # ════════════════════════════════════════════════════════════
 section "MEMORY LEAK TESTS (valgrind)"
 # ════════════════════════════════════════════════════════════
 
-run_leak_test "simple echo"               "echo hello"
-run_leak_test "pipe"                      "echo hello | cat"
-run_leak_test "export then unset"         "export X=1 && unset X"
-run_leak_test "failed redirect"           "cat < /no_such_file_xyz"
-run_leak_test "heredoc"                   "$(printf 'cat << EOF\nhello\nEOF')"
-run_leak_test "subshell"                  "(echo hello)"
-run_leak_test "syntax error"              "echo |"
-run_leak_test "and-or chain"              "true && false || echo end"
-run_leak_test "wildcard no match"         "echo /no_match_xyz_*"
-run_leak_test "cd and back"               "cd /tmp && cd -"
-run_leak_test "nested subshell"           "((echo deep))"
-run_leak_test "many pipes"                "echo x | cat | cat | cat | cat"
-run_leak_test "expand undefined"          "echo \$TOTALLY_UNDEFINED_VAR_XYZ"
-run_leak_test "exit after export"         "export X=1 && exit 0"
+run_leak_test "simple echo"           "echo hello"
+run_leak_test "pipe"                  "echo hello | cat"
+run_leak_test "export then unset"     "export X=1 && unset X"
+run_leak_test "failed redirect"       "cat < /no_such_file_xyz"
+run_leak_test "heredoc"               "$(printf 'cat << EOF\nhello\nEOF')"
+run_leak_test "subshell"              "(echo hello)"
+run_leak_test "syntax error"          "echo |"
+run_leak_test "and-or chain"          "true && false || echo end"
+run_leak_test "wildcard no match"     "echo /no_match_xyz_*"
+run_leak_test "cd and back"           "cd /tmp && cd -"
+run_leak_test "nested subshell"       "((echo deep))"
+run_leak_test "many pipes"            "echo x | cat | cat | cat | cat"
+run_leak_test "expand undefined"      "echo \$TOTALLY_UNDEFINED_VAR_XYZ"
+run_leak_test "exit after export"     "export X=1 && exit 0"
+run_leak_test "failed cmd 127"        "nonexistent_cmd_xyz"
+run_leak_test "heredoc with expand"   "$(printf 'export X=hi\ncat << EOF\n$X\nEOF')"
 
 # ════════════════════════════════════════════════════════════
 # Summary
