@@ -32,6 +32,7 @@ static void	shell_exec(t_token *node, t_tree **tree,
 {
 	process_heredocs(node);
 	expand_tokens(node, *last_exit, *env);
+	expand_wildcards(node);
 	set_built_in_cmds(&node);
 	*tree = build_tree(node);
 	execute(*tree, env, last_exit);

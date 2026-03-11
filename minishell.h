@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ali_shell <ali_shell@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/09 18:35:22 by ali_shell         #+#    #+#             */
-/*   Updated: 2026/03/10 16:58:45 by marvin           ###   ########.fr       */
+/*   Updated: 2026/03/11 06:41:15 by ali_shell        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@
 # include <sys/wait.h>
 # include <readline/readline.h>
 # include <readline/history.h>
+# include <dirent.h>
 # include "libft/libft.h"
 # include "printf/printf.h"
 # include "get_next_line/get_next_line.h"
@@ -91,7 +92,6 @@ void	process_heredocs(t_token *list);
 void	set_signals(void);
 void	set_built_in_cmds(t_token **node);
 void	free_list(t_token	**list);
-void	print_tree(t_tree *tree);
 void	free_tree(t_tree *tree);
 void	print_export(char **env);
 void	free_2d(char **args);
@@ -133,5 +133,7 @@ int		exec_export_var(t_token *tmp, char ***env);
 int		env_has_var(char **env, char *name);
 int		check_brackets(t_token *node);
 int		split_nonsign_node(t_token **list);
+
+void	expand_wildcards(t_token *list);
 
 #endif
