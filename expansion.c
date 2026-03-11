@@ -6,7 +6,7 @@
 /*   By: ali_shell <ali_shell@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/08 00:00:00 by marvin            #+#    #+#             */
-/*   Updated: 2026/03/08 15:28:31 by ali_shell        ###   ########.fr       */
+/*   Updated: 2026/03/11 00:00:00 by ali_shell        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,21 +37,12 @@ static char	*ft_charjoin(char *s, char c)
 	return (result);
 }
 
-static char	*expand_dollar(const char *s, int *i, int exit_status,
-		char **env)
+static char	*lookup_var(const char *s, int *i, char **env)
 {
 	char	*var_name;
 	char	*value;
 	int		start;
 
-	(*i)++;
-	if (s[*i] == '?')
-	{
-		(*i)++;
-		return (ft_itoa(exit_status));
-	}
-	if (!ft_isalpha(s[*i]) && s[*i] != '_')
-		return (ft_strdup("$"));
 	start = *i;
 	while (s[*i] && (ft_isalnum(s[*i]) || s[*i] == '_'))
 		(*i)++;
@@ -65,7 +56,26 @@ static char	*expand_dollar(const char *s, int *i, int exit_status,
 	return (ft_strdup(""));
 }
 
-static char	*expand_str(const char *s, int exit_status, char **env)
+static char	*expand_dollar(const char *s, int *i, int exit_status,
+		char **env)
+{
+	(*i)++;
+	if (s[*i] == '?')
+	{
+		(*i)++;
+		return (ft_itoa(exit_status));
+	}
+	if (ft_isdigit(s[*i]))
+	{
+		(*i)++;
+		return (ft_strdup(""));
+	}
+	if (!ft_isalpha(s[*i]) && s[*i] != '_')
+		return (ft_strdup("$"));
+	return (lookup_var(s, i, env));
+}
+
+char	*expand_str(const char *s, int exit_status, char **env)
 {
 	char	*result;
 	char	*tmp;
@@ -77,7 +87,8 @@ static char	*expand_str(const char *s, int exit_status, char **env)
 	while (s[i])
 	{
 		if (s[i] == '$' && (s[i + 1] == '?'
-				|| ft_isalpha(s[i + 1]) || s[i + 1] == '_'))
+				|| ft_isalpha(s[i + 1]) || s[i + 1] == '_'
+				|| ft_isdigit(s[i + 1])))
 		{
 			tmp = expand_dollar(s, &i, exit_status, env);
 			old = result;
