@@ -6,7 +6,7 @@
 /*   By: ali_shell <ali_shell@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/08 16:08:36 by ali_shell         #+#    #+#             */
-/*   Updated: 2026/03/08 16:08:36 by ali_shell        ###   ########.fr       */
+/*   Updated: 2026/03/11 00:00:00 by ali_shell        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ static void	set_cmd_types(t_token *tmp)
 			set_file_types(tmp);
 		if (is_sign(tmp) && !is_one_sided(tmp) && !is_sign(tmp->next))
 			tmp->next->type = TOK_CMD;
-		if (is_file(tmp))
+		if (is_file(tmp) && !is_sign(tmp->next))
 			tmp->next->type = TOK_CMD;
 		tmp = tmp->next;
 	}
