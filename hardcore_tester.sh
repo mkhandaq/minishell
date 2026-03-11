@@ -37,9 +37,13 @@ run_test()
 	local actual_out actual_exit tmpf
 	tmpf=$(mktemp)
 	actual_out=$(printf '%s\n' "$cmd" \
-		| ( "$MINISHELL" 2>/dev/null; echo $? > "$tmpf" ) \
+		| ( timeout "$TIMEOUT" "$MINISHELL" 2>/dev/null; echo $? > "$tmpf" ) \
 		| strip_prompt)
 	actual_exit=$(cat "$tmpf"); rm -f "$tmpf"
+	if [ "$actual_exit" = "124" ]; then
+		echo -e "  ${YELLOW}[TIMEOUT]${RESET} $desc (>${TIMEOUT}s)"
+		FAIL=$((FAIL + 1)); ERRORS+=("TIMEOUT: $desc"); return
+	fi
 	local out_ok=0 exit_ok=0
 	[ "$actual_out" = "$expected_out" ] && out_ok=1
 	[ "$actual_exit" = "$expected_exit" ] && exit_ok=1
@@ -59,8 +63,12 @@ run_test()
 run_exit_test()
 {
 	local desc="$1" cmd="$2" expected_exit="$3" actual_exit
-	printf '%s\n' "$cmd" | "$MINISHELL" >/dev/null 2>&1
+	printf '%s\n' "$cmd" | timeout "$TIMEOUT" "$MINISHELL" >/dev/null 2>&1
 	actual_exit=$?
+	if [ "$actual_exit" = "124" ]; then
+		echo -e "  ${YELLOW}[TIMEOUT]${RESET} $desc (>${TIMEOUT}s)"
+		FAIL=$((FAIL + 1)); ERRORS+=("TIMEOUT: $desc"); return
+	fi
 	if [ "$actual_exit" = "$expected_exit" ]; then
 		echo -e "  ${GREEN}[PASS]${RESET} $desc"
 		PASS=$((PASS + 1))
@@ -76,7 +84,11 @@ run_stderr_test()
 	local desc="$1" cmd="$2" pattern="$3"
 	local actual_err
 	actual_err=$(printf '%s\n' "$cmd" \
-		| "$MINISHELL" 2>&1 >/dev/null | strip_stderr)
+		| timeout "$TIMEOUT" "$MINISHELL" 2>&1 >/dev/null | strip_stderr)
+	if echo "$actual_err" | grep -q "^124$\|timeout"; then
+		echo -e "  ${YELLOW}[TIMEOUT]${RESET} $desc (>${TIMEOUT}s)"
+		FAIL=$((FAIL + 1)); ERRORS+=("TIMEOUT: $desc"); return
+	fi
 	if echo "$actual_err" | grep -q "$pattern"; then
 		echo -e "  ${GREEN}[PASS]${RESET} $desc"
 		PASS=$((PASS + 1))
@@ -90,8 +102,12 @@ run_stderr_test()
 run_crash_test()
 {
 	local desc="$1" cmd="$2" actual_exit
-	printf '%s\n' "$cmd" | "$MINISHELL" >/dev/null 2>&1
+	printf '%s\n' "$cmd" | timeout "$TIMEOUT" "$MINISHELL" >/dev/null 2>&1
 	actual_exit=$?
+	if [ "$actual_exit" = "124" ]; then
+		echo -e "  ${YELLOW}[TIMEOUT]${RESET} $desc (>${TIMEOUT}s)"
+		FAIL=$((FAIL + 1)); ERRORS+=("TIMEOUT: $desc"); return
+	fi
 	if [ "$actual_exit" = "139" ]; then
 		echo -e "  ${RED}[SEGFAULT]${RESET} $desc"
 		FAIL=$((FAIL + 1)); ERRORS+=("SEGFAULT: $desc")
@@ -110,7 +126,7 @@ run_leak_test()
 	fi
 	local vg_out
 	vg_out=$(printf '%s\n' "$cmd" \
-		| valgrind --leak-check=full --error-exitcode=42 \
+		| timeout "$TIMEOUT" valgrind --leak-check=full --error-exitcode=42 \
 		  "$MINISHELL" 2>&1 >/dev/null)
 	if echo "$vg_out" | grep -q "definitely lost: 0 bytes\|no leaks are possible"; then
 		echo -e "  ${GREEN}[PASS]${RESET} $desc (no leaks)"
@@ -127,11 +143,13 @@ run_leak_test()
 
 section() { echo -e "\n${CYAN}${BOLD}━━━ $1 ━━━${RESET}"; }
 
+TIMEOUT=${2:-5}
+
 [ ! -x "$MINISHELL" ] && \
 	echo -e "${RED}Error: '$MINISHELL' not found or not executable.${RESET}" && exit 1
 
 echo -e "${BOLD}shellGuys HARDCORE Tester${RESET}"
-echo "Binary: $MINISHELL"
+echo "Binary: $MINISHELL  |  Timeout: ${TIMEOUT}s"
 echo "========================================"
 
 # ════════════════════════════════════════════════════════════
