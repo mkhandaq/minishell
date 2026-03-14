@@ -88,7 +88,7 @@ t_token	*find_last_op(t_token *tokens, int prec, t_token **prev);
 
 t_tree	*build_tree(t_token *tokens);
 
-void	process_heredocs(t_token *list);
+void	process_heredocs(t_token *list, int exit_status, char **env);
 void	set_signals(void);
 void	set_built_in_cmds(t_token **node);
 void	free_list(t_token	**list);

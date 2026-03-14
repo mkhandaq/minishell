@@ -15,14 +15,26 @@
 static char	*shell_read(int last_exit)
 {
 	char	*input;
+	int		len;
 
-	input = readline(GREEN "shellGuys" BLUE "$ " RESET);
+	if (isatty(STDIN_FILENO))
+		input = readline(GREEN "shellGuys" BLUE "$ " RESET);
+	else
+	{
+		input = get_next_line(STDIN_FILENO);
+		if (input)
+		{
+			len = ft_strlen(input);
+			if (len > 0 && input[len - 1] == '\n')
+				input[len - 1] = '\0';
+		}
+	}
 	if (!input)
 	{
 		ft_printf("exit\n");
 		exit(last_exit);
 	}
-	if (input[0] != '\0')
+	if (isatty(STDIN_FILENO) && input[0] != '\0')
 		add_history(input);
 	return (input);
 }
@@ -30,8 +42,7 @@ static char	*shell_read(int last_exit)
 static void	shell_exec(t_token *node, t_tree **tree,
 		char ***env, int *last_exit)
 {
-	process_heredocs(node);
-	expand_tokens(node, *last_exit, *env);
+	process_heredocs(node, *last_exit, *env);
 	expand_wildcards(node);
 	set_built_in_cmds(&node);
 	*tree = build_tree(node);

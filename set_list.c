@@ -12,6 +12,44 @@
 
 #include "minishell.h"
 
+static char	*remove_quotes(char *str)
+{
+	char	*new_str;
+	int		i;
+	int		j;
+	int		sing;
+	int		dup;
+
+	if (!str)
+		return (NULL);
+	new_str = malloc(ft_strlen(str) + 1);
+	if (!new_str)
+	{
+		free(str);
+		return (NULL);
+	}
+	i = 0;
+	j = 0;
+	sing = 0;
+	dup = 0;
+	while (str[i])
+	{
+		if (str[i] == '\'' && !dup)
+			sing = !sing;
+		else if (str[i] == '"' && !sing)
+			dup = !dup;
+		else
+		{
+			new_str[j] = str[i];
+			j++;
+		}
+		i++;
+	}
+	new_str[j] = '\0';
+	free(str);
+	return (new_str);
+}
+
 static void	push(t_token **list, char *value, t_strtype stype)
 {
 	t_token	*new;
@@ -52,7 +90,7 @@ static char	*read_token(char *input, int *i, t_strtype *stype)
 	start = *i;
 	if (!input)
 		return (NULL);
-	while (input[*i] && input[*i] != ' ')
+	while (input[*i] && input[*i] != ' ' && input[*i] != '\t')
 	{
 		if (input[*i] == '\'' || input[*i] == '"')
 		{
@@ -61,12 +99,12 @@ static char	*read_token(char *input, int *i, t_strtype *stype)
 				(*i)++;
 			if (!input[*i])
 				break ;
+			(*i)++;
+			continue ;
 		}
 		(*i)++;
 	}
 	*stype = get_stype(input, start);
-	if (*stype != TOK_STR && (*i - start) >= 2)
-		return (ft_substr(input, start + 1, *i - start - 2));
 	return (ft_substr(input, start, *i - start));
 }
 
@@ -83,11 +121,13 @@ t_token	*set_list(char *input)
 		return (NULL);
 	while (input[i])
 	{
-		while (input[i] == ' ')
+		while (input[i] && (input[i] == ' ' || input[i] == '\t'))
 			i++;
 		if (!input[i])
 			break ;
 		token = read_token(input, &i, &stype);
+		if (token)
+			token = remove_quotes(token);
 		if (token && token[0])
 			push(&list, token, stype);
 		free(token);
