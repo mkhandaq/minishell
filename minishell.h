@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ali_shell <ali_shell@student.42.fr>        +#+  +:+       +#+        */
+/*   By: aalemami <aalemami@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/09 18:35:22 by ali_shell         #+#    #+#             */
-/*   Updated: 2026/03/11 06:41:15 by ali_shell        ###   ########.fr       */
+/*   Updated: 2026/03/15 09:08:55 by aalemami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,8 @@ void	expand_tokens(t_token *list, int exit_status, char **env);
 void	split_node_loop(t_token **list);
 void	shell_loop(char **env);
 void	split_sign_node(t_token **list);
-
+void	push(t_token **list, char *value, t_strtype stype);
+char	*remove_quotes(char *str);
 char	*get_path(char *cmd, char **ev);
 char	*ft_getenv(char **env, const char *name);
 
@@ -107,7 +108,12 @@ char	**set_whole_command(t_token *list, char *cmd);
 char	**export(char **env, char *added_var);
 char	**dup_env(char **env);
 char	**unset(char **env, char *removed_var);
+char	*find_command(t_token *list);
+char	*read_token(char *input, int *i, t_strtype *stype);
+char	*gen_heredoc_name(void);
+char	*expand_heredoc_line(char *line, int exit_status, char **env);
 
+int		open_heredoc(char *filename);
 int		echo(t_token **list);
 int		env(char **envt);
 int		pwd(void);
@@ -128,6 +134,9 @@ int		execute_cmd(char ***env, t_token *list, int *last_exit);
 int		execute(t_tree *tree, char ***env, int *last_exit);
 int		execute_pipe(t_tree *tree, char ***env, int *last_exit);
 int		execute_builtin(t_token *list, char ***envp, int *last_exit);
+int		exec_fork(t_token *list, char **whole_cmd, char ***env, char *path);
+int		exec_no_path(char *cmd);
+
 int		is_wrapped_in_parens(t_token *tokens);
 int		exec_export_var(t_token *tmp, char ***env);
 int		env_has_var(char **env, char *name);
