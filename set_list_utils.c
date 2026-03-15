@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   set_list_utils.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aalemami <aalemami@student.42amman.com>    +#+  +:+       +#+        */
+/*   By: mkhandaq <mkhandaq@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/03/15 06:46:31 by aalemami          #+#    #+#             */
-/*   Updated: 2026/03/15 08:20:56 by aalemami         ###   ########.fr       */
+/*   Created: 2026/03/15 09:17:27 by mkhandaq          #+#    #+#             */
+/*   Updated: 2026/03/15 09:17:28 by mkhandaq         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

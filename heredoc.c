@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aalemami <aalemami@student.42amman.com>    +#+  +:+       +#+        */
+/*   By: mkhandaq <mkhandaq@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/10 20:36:47 by ialausud          #+#    #+#             */
-/*   Updated: 2026/03/15 09:10:15 by aalemami         ###   ########.fr       */
+/*   Created: 2026/03/15 09:16:55 by mkhandaq          #+#    #+#             */
+/*   Updated: 2026/03/15 09:16:56 by mkhandaq         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

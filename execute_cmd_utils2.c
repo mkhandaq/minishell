@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execute_cmd_utils2.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aalemami <aalemami@student.42amman.com>    +#+  +:+       +#+        */
+/*   By: mkhandaq <mkhandaq@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/03/15 06:52:28 by aalemami          #+#    #+#             */
-/*   Updated: 2026/03/15 08:24:14 by aalemami         ###   ########.fr       */
+/*   Created: 2026/03/15 09:16:09 by mkhandaq          #+#    #+#             */
+/*   Updated: 2026/03/15 09:16:11 by mkhandaq         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

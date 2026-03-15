@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aalemami <aalemami@student.42amman.com>    +#+  +:+       +#+        */
+/*   By: mkhandaq <mkhandaq@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/03/09 18:35:22 by ali_shell         #+#    #+#             */
-/*   Updated: 2026/03/15 09:08:55 by aalemami         ###   ########.fr       */
+/*   Created: 2026/03/15 09:17:10 by mkhandaq          #+#    #+#             */
+/*   Updated: 2026/03/15 09:17:11 by mkhandaq         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
