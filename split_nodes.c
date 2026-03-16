@@ -86,11 +86,17 @@ static int	build_split_node(t_token *tmp, t_token **new_out)
 		return (0);
 	node_value = ft_strdup(tmp->value);
 	if (!node_value)
-		return (free(new), 0);
+	{
+		free(new);
+		return (0);
+	}
 	free(tmp->value);
 	set_splited_nodes(node_value, &(new->value), &(tmp->value));
 	if (!new->value || !tmp->value)
-		return (free(new), 0);
+	{
+		free(new);
+		return (0);
+	}
 	set_sign(&new);
 	*new_out = new;
 	return (1);
