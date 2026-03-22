@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   set_types.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkhandaq <mkhandaq@student.42amman.com>    +#+  +:+       +#+        */
+/*   By: aalemami <aalemami@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 09:17:37 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/03/15 09:17:39 by mkhandaq         ###   ########.fr       */
+/*   Updated: 2026/03/22 23:12:32 by aalemami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,10 @@ static void	set_file_types(t_token *tmp)
 	if (tmp->type == TOK_REDIR_IN)
 		tmp->next->type = TOK_INFILE;
 	else if (tmp->type == TOK_HEREDOC)
+	{
 		tmp->next->type = TOK_LIMITER;
+		tmp->next->value = remove_quotes(tmp->next->value);
+	}
 	else
 		tmp->next->type = TOK_OUTFILE;
 }
