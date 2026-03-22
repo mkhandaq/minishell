@@ -17,7 +17,7 @@ static int	count_keywords(t_token *list)
 	int		i;
 
 	i = 1;
-	while (list)
+	while (list && !is_two_sided(list))
 	{
 		if (list->type == TOK_KEYWORD)
 			i++;
@@ -38,7 +38,7 @@ char	**set_whole_command(t_token *list, char *cmd)
 	whole_command[0] = ft_strdup(cmd);
 	i = 1;
 	tmp = list;
-	while (tmp)
+	while (tmp && !is_two_sided(tmp))
 	{
 		if (tmp->type == TOK_KEYWORD)
 		{

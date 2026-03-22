@@ -12,17 +12,25 @@
 
 #include "minishell.h"
 
+static void	print_syntax_error(char *value)
+{
+	ft_putstr_fd("shellGuys: syntax error near unexpected token `", 2);
+	ft_putstr_fd(value, 2);
+	ft_putstr_fd("'\n", 2);
+}
+
 static int	check_two_sided_pair(t_token *tmp)
 {
 	if (is_two_sided(tmp) && is_two_sided(tmp->next))
 	{
-		ft_printf("shellGuys: syntax error near unexpected token '%s'\n",
-			tmp->next->value);
+		print_syntax_error(tmp->next->value);
 		return (0);
 	}
 	if (is_two_sided(tmp) && tmp->next->type == TOK_CLOSEBRC)
 	{
-		ft_printf("parse error near `%s'\n", tmp->next->value);
+		ft_putstr_fd("shellGuys: parse error near `", 2);
+		ft_putstr_fd(tmp->next->value, 2);
+		ft_putstr_fd("'\n", 2);
 		return (0);
 	}
 	return (1);
@@ -35,8 +43,7 @@ static int	check_two_sided(t_token *node)
 	tmp = node;
 	if (is_two_sided(tmp))
 	{
-		ft_printf("shellGuys: syntax error near unexpected token `%s'\n",
-			tmp->value);
+		print_syntax_error(tmp->value);
 		return (0);
 	}
 	while (tmp && tmp->next)
@@ -47,7 +54,8 @@ static int	check_two_sided(t_token *node)
 	}
 	if (is_two_sided(tmp))
 	{
-		ft_printf("shellGuys: syntax error near unexpected token `newline'\n");
+		ft_putstr_fd("shellGuys: syntax error near unexpected token", 2);
+		ft_putstr_fd(" `newline'\n", 2);
 		return (0);
 	}
 	return (1);
@@ -60,23 +68,22 @@ static int	check_one_sided(t_token *node)
 	tmp = node;
 	if (tmp && tmp->type == TOK_HEREDOC && is_sign(tmp->next))
 	{
-		ft_printf("shellGuys: syntax error near unexpected token '%s'\n",
-			tmp->next->value);
+		print_syntax_error(tmp->next->value);
 		return (0);
 	}
 	while (tmp && tmp->next)
 	{
 		if (is_one_sided(tmp) && is_sign(tmp->next))
 		{
-			ft_printf("shellGuys: syntax error near unexpected token '%s'\n",
-				tmp->next->value);
+			print_syntax_error(tmp->next->value);
 			return (0);
 		}
 		tmp = tmp->next;
 	}
 	if (is_one_sided(tmp))
 	{
-		ft_printf("shellGuys: syntax error near unexpected token `newline'\n");
+		ft_putstr_fd("shellGuys: syntax error near unexpected token", 2);
+		ft_putstr_fd(" `newline'\n", 2);
 		return (0);
 	}
 	return (1);

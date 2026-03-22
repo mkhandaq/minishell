@@ -41,7 +41,7 @@ int	cd(char **args, char ***env)
 	char	*newpwd;
 	char	*path;
 
-	if (args[2])
+	if (args[1] && args[2])
 	{
 		ft_putstr_fd("shellGuys: cd: too many arguments\n", 2);
 		return (1);

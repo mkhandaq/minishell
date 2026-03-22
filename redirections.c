@@ -19,7 +19,9 @@ static int	redir_in(char *file)
 	fd = open(file, O_RDONLY);
 	if (fd == -1)
 	{
-		ft_printf("shellGuys: %s: No such file or directory\n", file);
+		ft_putstr_fd("shellGuys: ", 2);
+		ft_putstr_fd(file, 2);
+		ft_putstr_fd(": No such file or directory\n", 2);
 		return (0);
 	}
 	dup2(fd, STDIN_FILENO);
@@ -34,7 +36,9 @@ static int	redir_out(char *file, int flags)
 	fd = open(file, flags, 0644);
 	if (fd == -1)
 	{
-		ft_printf("shellGuys: %s: No such file or directory\n", file);
+		ft_putstr_fd("shellGuys: ", 2);
+		ft_putstr_fd(file, 2);
+		ft_putstr_fd(": No such file or directory\n", 2);
 		return (0);
 	}
 	dup2(fd, STDOUT_FILENO);

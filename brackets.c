@@ -36,12 +36,14 @@ static int	check_open_brc(t_token *tmp)
 {
 	if (tmp->type == TOK_OPENBRC && is_two_sided(tmp->next))
 	{
-		ft_printf("shellGuys: parse error near `%s'\n", tmp->next->value);
+		ft_putstr_fd("shellGuys: parse error near `", 2);
+		ft_putstr_fd(tmp->next->value, 2);
+		ft_putstr_fd("'\n", 2);
 		return (0);
 	}
 	if (tmp->type == TOK_OPENBRC && tmp->next->type == TOK_CLOSEBRC)
 	{
-		ft_printf("shellGuys: EMPTY BRACKET\n");
+		ft_putstr_fd("shellGuys: EMPTY BRACKET\n", 2);
 		return (0);
 	}
 	return (1);
@@ -51,13 +53,15 @@ static int	check_close_brc(t_token *tmp)
 {
 	if (tmp->type == TOK_CLOSEBRC && tmp->next->type == TOK_OPENBRC)
 	{
-		ft_printf("shellGuys: parse error near `('\n");
+		ft_putstr_fd("shellGuys: parse error near `('\n", 2);
 		return (0);
 	}
 	if (tmp->type == TOK_CLOSEBRC
 		&& (tmp->next->type == TOK_CMD || tmp->next->type == TOK_KEYWORD))
 	{
-		ft_printf("shellGuys: parse error near `%s'\n", tmp->next->value);
+		ft_putstr_fd("shellGuys: parse error near `", 2);
+		ft_putstr_fd(tmp->next->value, 2);
+		ft_putstr_fd("'\n", 2);
 		return (0);
 	}
 	return (1);
@@ -68,7 +72,7 @@ static int	check_cmd_brc(t_token *tmp)
 	if ((tmp->type == TOK_CMD || tmp->type == TOK_KEYWORD)
 		&& tmp->next->type == TOK_OPENBRC)
 	{
-		ft_printf("shellGuys: number expected\n");
+		ft_putstr_fd("shellGuys: number expected\n", 2);
 		return (0);
 	}
 	return (1);
@@ -81,7 +85,7 @@ int	check_brackets(t_token *node)
 	tmp = node;
 	if (tmp && !is_closed(tmp))
 	{
-		ft_printf("shellGuys: CLOSE THAT BRACKET\n");
+		ft_putstr_fd("shellGuys: CLOSE THAT BRACKET\n", 2);
 		return (0);
 	}
 	while (tmp && tmp->next)
