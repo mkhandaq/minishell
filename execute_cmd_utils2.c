@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execute_cmd_utils2.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkhandaq <mkhandaq@student.42amman.com>    +#+  +:+       +#+        */
+/*   By: aalemami <aalemami@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 09:16:09 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/03/15 09:16:11 by mkhandaq         ###   ########.fr       */
+/*   Updated: 2026/03/21 23:27:21 by aalemami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,19 @@ int	exec_fork(t_token *list, char **whole_cmd, char ***env, char *path)
 
 	pid = fork();
 	if (pid == 0)
+	{
+		signal(SIGINT, SIG_DFL);
 		exec_child(list, whole_cmd, *env, path);
+	}
+	signal(SIGINT, SIG_IGN);
 	waitpid(pid, &status, 0);
+	set_signals();
+	if (WIFSIGNALED(status))
+	{
+		g_signal = WTERMSIG(status);
+		write(1, "\n", 1);
+		return (128 + WTERMSIG(status));
+	}
 	if (WIFEXITED(status))
 		return (WEXITSTATUS(status));
 	return (0);

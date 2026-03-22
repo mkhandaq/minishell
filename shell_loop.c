@@ -31,6 +31,11 @@ static char	*shell_read(int last_exit)
 	}
 	if (!input)
 	{
+		if (g_signal == SIGINT)
+   		{
+    		g_signal = 0;
+        	return (ft_strdup(""));
+    	}
 		ft_printf("exit\n");
 		exit(last_exit);
 	}
