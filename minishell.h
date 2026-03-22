@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkhandaq <mkhandaq@student.42amman.com>    +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 09:17:10 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/03/15 09:17:11 by mkhandaq         ###   ########.fr       */
+/*   Updated: 2026/03/22 22:51:04 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,8 +88,9 @@ t_token	*find_last_op(t_token *tokens, int prec, t_token **prev);
 
 t_tree	*build_tree(t_token *tokens);
 
-void	process_heredocs(t_token *list, int exit_status, char **env);
+int		process_heredocs(t_token *list, int exit_status, char **env);
 void	set_signals(void);
+void	set_heredoc_signals(void);
 void	set_built_in_cmds(t_token **node);
 void	free_list(t_token	**list);
 void	free_tree(t_tree *tree);

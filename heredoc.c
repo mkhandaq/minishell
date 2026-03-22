@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkhandaq <mkhandaq@student.42amman.com>    +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 09:16:55 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/03/15 09:16:56 by mkhandaq         ###   ########.fr       */
+/*   Updated: 2026/03/22 22:50:55 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ static void	fill_heredoc_helper(char **line)
 	}
 }
 
-static void	fill_heredoc(int fd, t_token *tmp,
+static int	fill_heredoc(int fd, t_token *tmp,
 		int exit_status, char **env)
 {
 	char	*line;
@@ -39,12 +39,14 @@ static void	fill_heredoc(int fd, t_token *tmp,
 			line = readline("> ");
 		else
 			fill_heredoc_helper(&line);
-		if (!line || !ft_strncmp(line, tmp->next->value,
-				ft_strlen(tmp->next->value) + 1))
+		if (!line)
 		{
-			free(line);
+			if (g_signal == SIGINT)
+				return (1);
 			break ;
 		}
+		if (!ft_strncmp(line, tmp->next->value, ft_strlen(tmp->next->value) + 1))
+			return (free(line), 0);
 		if (do_expand)
 			out = expand_heredoc_line(line, exit_status, env);
 		else
@@ -53,67 +55,53 @@ static void	fill_heredoc(int fd, t_token *tmp,
 		write(fd, "\n", 1);
 		free(out);
 	}
+	return (0);
 }
 
-static void	handle_heredoc(t_token *tmp, int exit_status, char **env)
+static int	handle_heredoc(t_token *tmp, int exit_status, char **env)
 {
 	char	*filename;
 	int		fd;
+	int		stdin_backup;
+	int		interrupted;
 
 	filename = gen_heredoc_name();
 	if (!filename)
-		return (perror("heredoc filename"));
+		return (perror("heredoc filename"), 0);
 	fd = open_heredoc(filename);
 	if (fd == -1)
-		return ;
-	fill_heredoc(fd, tmp, exit_status, env);
+		return (0);
+	stdin_backup = dup(STDIN_FILENO);
+	set_heredoc_signals();
+	interrupted = fill_heredoc(fd, tmp, exit_status, env);
 	close(fd);
+	if (interrupted)
+	{
+		dup2(stdin_backup, STDIN_FILENO);
+		close(stdin_backup);
+		unlink(filename);
+		free(filename);
+		set_signals();
+		return (1);
+	}
+	close(stdin_backup);
+	set_signals();
 	free(tmp->next->value);
 	tmp->next->value = filename;
+	return (0);
 }
 
-void	process_heredocs(t_token *list, int exit_status, char **env)
+int	process_heredocs(t_token *list, int exit_status, char **env)
 {
 	while (list)
 	{
 		if (list->type == TOK_HEREDOC
 			&& list->next && list->next->type == TOK_LIMITER)
-			handle_heredoc(list, exit_status, env);
+		{
+			if (handle_heredoc(list, exit_status, env))
+				return (1);
+		}
 		list = list->next;
 	}
+	return (0);
 }
-
-// static void	fill_heredoc(int fd, char *limiter, int do_expand,
-// 		int exit_status, char **env)
-// {
-// 	char	*line;
-// 	char	*out;
-// 	int		len;
-// 	while (1)
-// 	{
-// 		if (isatty(STDIN_FILENO))
-// 			line = readline("> ");
-// 		else
-// 		{
-// 			line = get_next_line(STDIN_FILENO);
-// 			if (line)
-// 			{
-// 				len = ft_strlen(line);
-// 				if (len > 0 && line[len - 1] == '\n')
-// 					line[len - 1] = '\0';
-// 			}
-// 		}
-// 		if (!line || !ft_strncmp(line, limiter, ft_strlen(limiter) + 1))
-// 		{
-// 			free(line);
-// 			break ;
-// 		}
-// 		if (do_expand)
-// 			out = expand_heredoc_line(line, exit_status, env);
-// 		else
-// 			out = line;
-// 		write(fd, out, ft_strlen(out));
-// 		write(fd, "\n", 1);
-// 		free(out);
-// 	}
-// }

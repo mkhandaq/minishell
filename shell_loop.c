@@ -47,7 +47,13 @@ static char	*shell_read(int last_exit)
 static void	shell_exec(t_token *node, t_tree **tree,
 		char ***env, int *last_exit)
 {
-	process_heredocs(node, *last_exit, *env);
+	if (process_heredocs(node, *last_exit, *env))
+	{
+		g_signal = 0;
+		*last_exit = 130;
+		free_list(&node);
+		return ;
+	}
 	expand_wildcards(node);
 	set_built_in_cmds(&node);
 	*tree = build_tree(node);
