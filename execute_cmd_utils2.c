@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execute_cmd_utils2.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aalemami <aalemami@student.42amman.com>    +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 09:16:09 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/03/21 23:27:21 by aalemami         ###   ########.fr       */
+/*   Updated: 2026/04/07 09:17:17 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,16 @@ char	*find_command(t_token *list)
 
 int	exec_no_path(char *cmd)
 {
-	ft_putstr_fd("shellGuys: ", 2);
-	ft_putstr_fd(cmd, 2);
-	ft_putstr_fd(": command not found\n", 2);
+	char	*s1;
+	char	*s2;
+
+	s1 = ft_strdup("shellGuys: ");
+	s2 = ft_strjoin(s1, cmd);
+	free(s1);
+	s1 = ft_strjoin (s2, ": command not found\n");
+	write(2, s1, ft_strlen(s1));
+	free(s1);
+	free(s2);
 	free(cmd);
 	return (127);
 }

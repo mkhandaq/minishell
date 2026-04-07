@@ -47,6 +47,8 @@ int	cd(char **args, char ***env)
 		return (1);
 	}
 	oldpwd = getcwd(NULL, 0);
+	if (!oldpwd)
+		oldpwd = ft_strdup(ft_getenv(*env, "PWD"));
 	if (!args[1])
 		path = ft_getenv(*env, "HOME");
 	else
@@ -60,6 +62,8 @@ int	cd(char **args, char ***env)
 	if (chdir(path) == -1)
 		return (cd_print_path_err(path, oldpwd));
 	newpwd = getcwd(NULL, 0);
+	if (!newpwd)
+		newpwd = ft_strdup(path);
 	cd_update_pwd(env, oldpwd, newpwd);
 	return (0);
 }
