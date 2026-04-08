@@ -12,6 +12,17 @@
 
 #include "minishell.h"
 
+static int	has_builtin_cmd(t_token *list)
+{
+	while (list)
+	{
+		if (is_built_in(list))
+			return (1);
+		list = list->next;
+	}
+	return (0);
+}
+
 static void	dup_and_close(int stdin_copy, int stdout_copy, char *cmd)
 {
 	free(cmd);
@@ -60,7 +71,7 @@ static int	setup_execute_cmd(char ***env, t_token *list,
 		*last_exit = 0;
 		return (0);
 	}
-	if (is_built_in(list))
+	if (has_builtin_cmd(list))
 	{
 		*last_exit = process_built_in(env, list, last_exit, *cmd);
 		return (0);

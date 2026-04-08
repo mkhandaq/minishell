@@ -12,6 +12,17 @@
 
 #include "minishell.h"
 
+static char	*shell_read_eof(int last_exit)
+{
+	if (g_signal == SIGINT)
+	{
+		g_signal = 0;
+		return (ft_strdup(""));
+	}
+	ft_printf("exit\n");
+	exit(last_exit);
+}
+
 static char	*shell_read(int last_exit)
 {
 	char	*input;
@@ -30,15 +41,7 @@ static char	*shell_read(int last_exit)
 		}
 	}
 	if (!input)
-	{
-		if (g_signal == SIGINT)
-   		{
-    		g_signal = 0;
-        	return (ft_strdup(""));
-    	}
-		ft_printf("exit\n");
-		exit(last_exit);
-	}
+		return (shell_read_eof(last_exit));
 	if (isatty(STDIN_FILENO) && input[0] != '\0')
 		add_history(input);
 	return (input);

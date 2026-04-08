@@ -3,14 +3,44 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aalemami <aalemami@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 09:19:24 by aalemami          #+#    #+#             */
-/*   Updated: 2026/03/23 02:44:25 by marvin           ###   ########.fr       */
+/*   Updated: 2026/04/08 02:35:55 by aalemami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+int	is_heredoc_limiter(char *line, t_token *tmp)
+{
+	if (!ft_strncmp(line, tmp->next->value, ft_strlen(tmp->next->value) + 1))
+	{
+		free(line);
+		return (1);
+	}
+	return (0);
+}
+
+char	*read_heredoc_line(void)
+{
+	char	*line;
+	int		len;
+
+	if (isatty(STDIN_FILENO))
+		line = readline("> ");
+	else
+	{
+		line = get_next_line(STDIN_FILENO);
+		if (line)
+		{
+			len = ft_strlen(line);
+			if (len > 0 && line[len - 1] == '\n')
+				line[len - 1] = '\0';
+		}
+	}
+	return (line);
+}
 
 char	*gen_heredoc_name(void)
 {

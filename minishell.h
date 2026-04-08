@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aalemami <aalemami@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 09:17:10 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/03/23 02:46:43 by marvin           ###   ########.fr       */
+/*   Updated: 2026/04/08 02:35:59 by aalemami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,8 +113,10 @@ char	*find_command(t_token *list);
 char	*read_token(char *input, int *i, t_strtype *stype);
 char	*gen_heredoc_name(void);
 char	*expand_heredoc_line(char *line, int exit_status, char **env);
+char	*read_heredoc_line(void);
 
 int		open_heredoc(char *filename);
+int		is_heredoc_limiter(char *line, t_token *tmp);
 int		echo(t_token **list);
 int		env(char **envt);
 int		pwd(void);

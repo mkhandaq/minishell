@@ -46,6 +46,9 @@ static t_token	*new_sign_node(t_token *tmp)
 	new = malloc(sizeof(t_token));
 	if (!new)
 		return (NULL);
+	new->strtype = TOK_STR;
+	new->is_exuted = 0;
+	new->next = NULL;
 	if (return_sign_len(tmp) == 1 && ft_strlen(tmp->value) > 1)
 		new->value = ft_strdup(tmp->value + 1);
 	else if (return_sign_len(tmp) == 2 && ft_strlen(tmp->value) > 2)
@@ -84,6 +87,9 @@ static int	build_split_node(t_token *tmp, t_token **new_out)
 	new = malloc(sizeof(t_token));
 	if (!new)
 		return (0);
+	new->strtype = TOK_STR;
+	new->is_exuted = 0;
+	new->next = NULL;
 	node_value = ft_strdup(tmp->value);
 	if (!node_value)
 	{
@@ -110,7 +116,7 @@ int	split_nonsign_node(t_token **list)
 
 	tmp = *list;
 	tmp_ptr = NULL;
-	if (is_sign(tmp) || (!ft_strchr(tmp->value, '|')
+	if (is_sign(tmp) || tmp->strtype != TOK_STR || (!ft_strchr(tmp->value, '|')
 			&& !ft_strchr(tmp->value, '&') && !ft_strchr(tmp->value, '<')
 			&& !ft_strchr(tmp->value, '>') && !ft_strchr(tmp->value, '(')
 			&& !ft_strchr(tmp->value, ')')))

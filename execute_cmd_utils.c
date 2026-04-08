@@ -82,8 +82,12 @@ char	*get_path(char *cmd, char **ev)
 
 	if (!cmd || !ev)
 		return (NULL);
-	if (!access(cmd, X_OK))
-		return (ft_strdup(cmd));
+	if (ft_strchr(cmd, '/'))
+	{
+		if (!access(cmd, X_OK))
+			return (ft_strdup(cmd));
+		return (NULL);
+	}
 	i = 0;
 	while (ev[i] && ft_strncmp(ev[i], "PATH=", 5))
 		i++;

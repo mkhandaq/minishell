@@ -24,23 +24,25 @@ int	is_built_in(t_token *node)
 
 int	set_sign(t_token **node)
 {
-	if (node && (!ft_strncmp((*node)->value, "||", 2)))
+	if (!node || !*node || !(*node)->value || (*node)->strtype != TOK_STR)
+		return (0);
+	if (!ft_strncmp((*node)->value, "||", 2))
 		(*node)->type = TOK_OR;
-	else if (node && (!ft_strncmp((*node)->value, "&&", 2)))
+	else if (!ft_strncmp((*node)->value, "&&", 2))
 		(*node)->type = TOK_AND;
-	else if (node && (!ft_strncmp((*node)->value, "|", 1)))
+	else if (!ft_strncmp((*node)->value, "|", 1))
 		(*node)->type = TOK_PIPE;
-	else if (node && (!ft_strncmp((*node)->value, ">>", 2)))
+	else if (!ft_strncmp((*node)->value, ">>", 2))
 		(*node)->type = TOK_REDIR_APPEND;
-	else if (node && (!ft_strncmp((*node)->value, ">", 1)))
+	else if (!ft_strncmp((*node)->value, ">", 1))
 		(*node)->type = TOK_REDIR_OUT;
-	else if (node && (!ft_strncmp((*node)->value, "<<", 2)))
+	else if (!ft_strncmp((*node)->value, "<<", 2))
 		(*node)->type = TOK_HEREDOC;
-	else if (node && (!ft_strncmp((*node)->value, "<", 1)))
+	else if (!ft_strncmp((*node)->value, "<", 1))
 		(*node)->type = TOK_REDIR_IN;
-	else if (node && (!ft_strncmp((*node)->value, "(", 1)))
+	else if (!ft_strncmp((*node)->value, "(", 1))
 		(*node)->type = TOK_OPENBRC;
-	else if (node && (!ft_strncmp((*node)->value, ")", 1)))
+	else if (!ft_strncmp((*node)->value, ")", 1))
 		(*node)->type = TOK_CLOSEBRC;
 	else
 		return (0);
@@ -75,7 +77,7 @@ void	set_built_in_cmds(t_token **node)
 	while (tmp)
 	{
 		type = get_builtin_type(tmp->value);
-		if (type != -1)
+		if (type != -1 && tmp->type == TOK_CMD)
 			tmp->type = type;
 		if (is_sign(tmp))
 		{

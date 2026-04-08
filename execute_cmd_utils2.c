@@ -14,19 +14,13 @@
 
 char	*find_command(t_token *list)
 {
-	char	*cmd;
-
-	cmd = NULL;
 	while (list)
 	{
-		if (list->type == TOK_CMD || is_built_in(list))
-		{
-			free(cmd);
-			cmd = ft_strdup(list->value);
-		}
+		if ((list->type == TOK_CMD || is_built_in(list)) && list->value)
+			return (ft_strdup(list->value));
 		list = list->next;
 	}
-	return (cmd);
+	return (NULL);
 }
 
 int	exec_no_path(char *cmd)
