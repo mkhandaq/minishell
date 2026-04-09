@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aalemami <aalemami@student.42amman.com>    +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 09:17:10 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/04/08 02:35:59 by aalemami         ###   ########.fr       */
+/*   Updated: 2026/04/09 13:44:34 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # define BLUE   "\001\033[34m\002"
 # define RESET  "\001\033[0m\002"
 
+# include <dirent.h>
 # include <fcntl.h>
 # include <stdio.h>
 # include <unistd.h>

@@ -3,15 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   wildcard.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aalemami <aalemami@student.42amman.com>    +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 09:20:08 by aalemami          #+#    #+#             */
-/*   Updated: 2026/03/15 09:20:09 by aalemami         ###   ########.fr       */
+/*   Updated: 2026/04/09 13:44:00 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-#include <dirent.h>
 
 int		count_matches(DIR *dir, const char *pat);
 void	fill_matches(DIR *dir, const char *pat, char **matches);
