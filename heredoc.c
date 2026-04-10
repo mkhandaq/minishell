@@ -14,12 +14,12 @@
 
 static int	handle_heredoc_eof(t_token *tmp)
 {
+	if (g_signal == SIGINT)
+		return (1);
 	ft_putstr_fd("shellGuys: warning: ", 2);
 	ft_putstr_fd("here-document delimited by end-of-file (wanted `", 2);
 	ft_putstr_fd(tmp->next->value, 2);
 	ft_putstr_fd("')\n", 2);
-	if (g_signal == SIGINT)
-		return (1);
 	return (0);
 }
 

@@ -12,17 +12,6 @@
 
 #include "minishell.h"
 
-static int	has_builtin_cmd(t_token *list)
-{
-	while (list)
-	{
-		if (is_built_in(list))
-			return (1);
-		list = list->next;
-	}
-	return (0);
-}
-
 static void	dup_and_close(int stdin_copy, int stdout_copy, char *cmd)
 {
 	free(cmd);
@@ -30,6 +19,32 @@ static void	dup_and_close(int stdin_copy, int stdout_copy, char *cmd)
 	dup2(stdout_copy, STDOUT_FILENO);
 	close(stdin_copy);
 	close(stdout_copy);
+}
+
+static int	process_redirections_only(t_token *list)
+{
+	int	stdin_copy;
+	int	stdout_copy;
+	int	status;
+
+	stdin_copy = dup(STDIN_FILENO);
+	stdout_copy = dup(STDOUT_FILENO);
+	if (stdin_copy == -1 || stdout_copy == -1)
+	{
+		if (stdin_copy != -1)
+			close(stdin_copy);
+		if (stdout_copy != -1)
+			close(stdout_copy);
+		return (1);
+	}
+	status = 0;
+	if (!redirections(list))
+		status = 1;
+	dup2(stdin_copy, STDIN_FILENO);
+	dup2(stdout_copy, STDOUT_FILENO);
+	close(stdin_copy);
+	close(stdout_copy);
+	return (status);
 }
 
 static int	process_built_in(char ***env,
@@ -64,17 +79,24 @@ static int	process_built_in(char ***env,
 static int	setup_execute_cmd(char ***env, t_token *list,
 		int *last_exit, char **cmd)
 {
+	t_token	*tmp;
+
 	expand_tokens(list, *last_exit, *env);
 	*cmd = find_command(list);
 	if (!*cmd)
 	{
-		*last_exit = 0;
+		*last_exit = process_redirections_only(list);
 		return (0);
 	}
-	if (has_builtin_cmd(list))
+	tmp = list;
+	while (tmp)
 	{
-		*last_exit = process_built_in(env, list, last_exit, *cmd);
-		return (0);
+		if (is_built_in(tmp))
+		{
+			*last_exit = process_built_in(env, list, last_exit, *cmd);
+			return (0);
+		}
+		tmp = tmp->next;
 	}
 	return (1);
 }

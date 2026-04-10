@@ -75,6 +75,11 @@ void	shell_loop(char **env)
 	while (1)
 	{
 		input = shell_read(last_exit);
+		if (g_signal == SIGINT)
+		{
+			last_exit = 130;
+			g_signal = 0;
+		}
 		node = set_list(input);
 		free(input);
 		if (!set_types(&node))

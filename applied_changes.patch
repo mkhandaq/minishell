@@ -1,0 +1,139 @@
+diff --git a/execute_cmd.c b/execute_cmd.c
+index 74e29a0..e4e64bb 100644
+--- a/execute_cmd.c
++++ b/execute_cmd.c
+@@ -32,6 +32,32 @@ static void	dup_and_close(int stdin_copy, int stdout_copy, char *cmd)
+ 	close(stdout_copy);
+ }
+ 
++static int	process_redirections_only(t_token *list)
++{
++	int	stdin_copy;
++	int	stdout_copy;
++	int	status;
++
++	stdin_copy = dup(STDIN_FILENO);
++	stdout_copy = dup(STDOUT_FILENO);
++	if (stdin_copy == -1 || stdout_copy == -1)
++	{
++		if (stdin_copy != -1)
++			close(stdin_copy);
++		if (stdout_copy != -1)
++			close(stdout_copy);
++		return (1);
++	}
++	status = 0;
++	if (!redirections(list))
++		status = 1;
++	dup2(stdin_copy, STDIN_FILENO);
++	dup2(stdout_copy, STDOUT_FILENO);
++	close(stdin_copy);
++	close(stdout_copy);
++	return (status);
++}
++
+ static int	process_built_in(char ***env,
+ 	t_token *list, int *last_exit, char *cmd)
+ {
+@@ -68,7 +94,7 @@ static int	setup_execute_cmd(char ***env, t_token *list,
+ 	*cmd = find_command(list);
+ 	if (!*cmd)
+ 	{
+-		*last_exit = 0;
++		*last_exit = process_redirections_only(list);
+ 		return (0);
+ 	}
+ 	if (has_builtin_cmd(list))
+diff --git a/execute_cmd_utils2.c b/execute_cmd_utils2.c
+index 92d44b3..ace49ee 100644
+--- a/execute_cmd_utils2.c
++++ b/execute_cmd_utils2.c
+@@ -57,6 +57,7 @@ int	exec_fork(t_token *list, char **whole_cmd, char ***env, char *path)
+ 	if (pid == 0)
+ 	{
+ 		signal(SIGINT, SIG_DFL);
++		signal(SIGQUIT, SIG_DFL);
+ 		exec_child(list, whole_cmd, *env, path);
+ 	}
+ 	signal(SIGINT, SIG_IGN);
+@@ -65,8 +66,11 @@ int	exec_fork(t_token *list, char **whole_cmd, char ***env, char *path)
+ 	if (WIFSIGNALED(status))
+ 	{
+ 		g_signal = WTERMSIG(status);
+-		write(1, "\n", 1);
+-		return (128 + WTERMSIG(status));
++		if (g_signal == SIGINT)
++			write(1, "\n", 1);
++		else if (g_signal == SIGQUIT)
++			write(2, "Quit: 3\n", 8);
++		return (128 + g_signal);
+ 	}
+ 	if (WIFEXITED(status))
+ 		return (WEXITSTATUS(status));
+diff --git a/heredoc.c b/heredoc.c
+index ff244a8..bd5e3b7 100644
+--- a/heredoc.c
++++ b/heredoc.c
+@@ -14,12 +14,12 @@
+ 
+ static int	handle_heredoc_eof(t_token *tmp)
+ {
++	if (g_signal == SIGINT)
++		return (1);
+ 	ft_putstr_fd("shellGuys: warning: ", 2);
+ 	ft_putstr_fd("here-document delimited by end-of-file (wanted `", 2);
+ 	ft_putstr_fd(tmp->next->value, 2);
+ 	ft_putstr_fd("')\n", 2);
+-	if (g_signal == SIGINT)
+-		return (1);
+ 	return (0);
+ }
+ 
+diff --git a/set_list_utils.c b/set_list_utils.c
+index 522c115..530dc89 100644
+--- a/set_list_utils.c
++++ b/set_list_utils.c
+@@ -96,6 +96,18 @@ char	*read_token(char *input, int *i, t_strtype *stype)
+ 	start = *i;
+ 	if (!input)
+ 		return (NULL);
++	if (ft_strchr("|&<>()", input[*i]))
++	{
++		if ((input[*i] == '|' && input[*i + 1] == '|')
++			|| (input[*i] == '&' && input[*i + 1] == '&')
++			|| (input[*i] == '<' && input[*i + 1] == '<')
++			|| (input[*i] == '>' && input[*i + 1] == '>'))
++			(*i) += 2;
++		else
++			(*i)++;
++		*stype = TOK_STR;
++		return (ft_substr(input, start, *i - start));
++	}
+ 	while (input[*i] && input[*i] != ' ' && input[*i] != '\t')
+ 	{
+ 		if (input[*i] == '\'' || input[*i] == '"')
+@@ -108,6 +120,8 @@ char	*read_token(char *input, int *i, t_strtype *stype)
+ 			(*i)++;
+ 			continue ;
+ 		}
++		if (ft_strchr("|&<>()", input[*i]))
++			break ;
+ 		(*i)++;
+ 	}
+ 	*stype = get_stype(input, start);
+diff --git a/shell_loop.c b/shell_loop.c
+index 2e53823..40d9c63 100644
+--- a/shell_loop.c
++++ b/shell_loop.c
+@@ -75,6 +75,11 @@ void	shell_loop(char **env)
+ 	while (1)
+ 	{
+ 		input = shell_read(last_exit);
++		if (g_signal == SIGINT)
++		{
++			last_exit = 130;
++			g_signal = 0;
++		}
+ 		node = set_list(input);
+ 		free(input);
+ 		if (!set_types(&node))
