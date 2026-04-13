@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mkhandaq <mkhandaq@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 09:17:10 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/04/09 13:44:34 by marvin           ###   ########.fr       */
+/*   Updated: 2026/04/11 17:08:35 by mkhandaq         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,20 @@ typedef struct s_tree
 	struct s_tree	*right;
 }	t_tree;
 
+typedef struct s_exec_ctx
+{
+	char	***env;
+	int		*last_exit;
+	int		*should_exit;
+}	t_exec_ctx;
+
+typedef struct s_loop_ctx
+{
+	char	***env;
+	int		last_exit;
+	int		should_exit;
+}	t_loop_ctx;
+
 t_token	*set_list(char *input);
 t_token	*find_last_op(t_token *tokens, int prec, t_token **prev);
 
@@ -123,7 +137,7 @@ int		env(char **envt);
 int		pwd(void);
 int		set_types(t_token **list);
 int		is_valid_identifier(const char *str);
-int		builtin_exit(t_token *node);
+int		builtin_exit(t_token *node, int *should_exit);
 int		set_sign(t_token **node);
 int		is_two_sided(t_token *node);
 int		is_sign(t_token *node);
@@ -134,10 +148,13 @@ int		return_sign_len(t_token *node);
 int		is_file(t_token *node);
 int		cd(char **args, char ***env);
 int		redirections(t_token *list);
-int		execute_cmd(char ***env, t_token *list, int *last_exit);
-int		execute(t_tree *tree, char ***env, int *last_exit);
-int		execute_pipe(t_tree *tree, char ***env, int *last_exit);
-int		execute_builtin(t_token *list, char ***envp, int *last_exit);
+int		execute_cmd(char ***env, t_token *list,
+			int *last_exit, int *should_exit);
+int		execute(t_tree *tree, char ***env, int *last_exit, int *should_exit);
+int		execute_pipe(t_tree *tree, char ***env,
+			int *last_exit, int *should_exit);
+int		execute_builtin(t_token *list, char ***envp,
+			int *last_exit, int *should_exit);
 int		exec_fork(t_token *list, char **whole_cmd, char ***env, char *path);
 int		exec_no_path(char *cmd);
 

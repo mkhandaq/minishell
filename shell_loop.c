@@ -47,42 +47,57 @@ static char	*shell_read(int last_exit)
 	return (input);
 }
 
-static void	shell_exec(t_token *node, t_tree **tree,
-		char ***env, int *last_exit)
+static void	shell_exec(t_token *node, t_tree **tree, t_loop_ctx *ctx)
 {
-	if (process_heredocs(node, *last_exit, *env))
+	if (process_heredocs(node, ctx->last_exit, *ctx->env))
 	{
 		g_signal = 0;
-		*last_exit = 130;
+		ctx->last_exit = 130;
 		free_list(&node);
 		return ;
 	}
 	expand_wildcards(node);
 	set_built_in_cmds(&node);
 	*tree = build_tree(node);
-	execute(*tree, env, last_exit);
+	execute(*tree, ctx->env, &ctx->last_exit, &ctx->should_exit);
 	free_tree(*tree);
+}
+
+static void	parse_and_exec(char *input, t_loop_ctx *ctx)
+{
+	t_token	*node;
+	t_tree	*tree;
+
+	node = set_list(input);
+	free(input);
+	if (!set_types(&node))
+	{
+		ctx->last_exit = 2;
+		free_list(&node);
+		return ;
+	}
+	shell_exec(node, &tree, ctx);
 }
 
 void	shell_loop(char **env)
 {
-	char	*input;
-	t_token	*node;
-	t_tree	*tree;
-	int		last_exit;
+	t_loop_ctx	ctx;
+	char		*input;
 
-	last_exit = 0;
+	ctx.env = &env;
+	ctx.last_exit = 0;
+	ctx.should_exit = 0;
 	while (1)
 	{
-		input = shell_read(last_exit);
-		node = set_list(input);
-		free(input);
-		if (!set_types(&node))
+		ctx.should_exit = 0;
+		input = shell_read(ctx.last_exit);
+		if (g_signal == SIGINT)
 		{
-			last_exit = 2;
-			free_list(&node);
-			continue ;
+			ctx.last_exit = 130;
+			g_signal = 0;
 		}
-		shell_exec(node, &tree, &env, &last_exit);
+		parse_and_exec(input, &ctx);
+		if (ctx.should_exit)
+			exit(ctx.last_exit);
 	}
 }

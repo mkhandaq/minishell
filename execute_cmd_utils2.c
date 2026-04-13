@@ -57,6 +57,7 @@ int	exec_fork(t_token *list, char **whole_cmd, char ***env, char *path)
 	if (pid == 0)
 	{
 		signal(SIGINT, SIG_DFL);
+		signal(SIGQUIT, SIG_DFL);
 		exec_child(list, whole_cmd, *env, path);
 	}
 	signal(SIGINT, SIG_IGN);
@@ -65,8 +66,11 @@ int	exec_fork(t_token *list, char **whole_cmd, char ***env, char *path)
 	if (WIFSIGNALED(status))
 	{
 		g_signal = WTERMSIG(status);
-		write(1, "\n", 1);
-		return (128 + WTERMSIG(status));
+		if (g_signal == SIGINT)
+			write(1, "\n", 1);
+		else if (g_signal == SIGQUIT)
+			write(2, "Quit: 3\n", 8);
+		return (128 + g_signal);
 	}
 	if (WIFEXITED(status))
 		return (WEXITSTATUS(status));

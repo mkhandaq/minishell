@@ -79,23 +79,10 @@ void	push(t_token **list, char *value, t_strtype stype)
 		*list = new;
 }
 
-static t_strtype	get_stype(char *input, int start)
+static void	read_word_token(char *input, int *i)
 {
-	if (input[start] == '\'')
-		return (TOK_SING);
-	if (input[start] == '"')
-		return (TOK_DUP);
-	return (TOK_STR);
-}
-
-char	*read_token(char *input, int *i, t_strtype *stype)
-{
-	int		start;
 	char	q;
 
-	start = *i;
-	if (!input)
-		return (NULL);
 	while (input[*i] && input[*i] != ' ' && input[*i] != '\t')
 	{
 		if (input[*i] == '\'' || input[*i] == '"')
@@ -106,10 +93,38 @@ char	*read_token(char *input, int *i, t_strtype *stype)
 			if (!input[*i])
 				break ;
 			(*i)++;
-			continue ;
 		}
-		(*i)++;
+		else if (ft_strchr("|&<>()", input[*i]))
+			break ;
+		else
+			(*i)++;
 	}
-	*stype = get_stype(input, start);
+}
+
+char	*read_token(char *input, int *i, t_strtype *stype)
+{
+	int		start;
+
+	start = *i;
+	if (!input)
+		return (NULL);
+	if (ft_strchr("|&<>()", input[*i]))
+	{
+		if ((input[*i] == '|' && input[*i + 1] == '|')
+			|| (input[*i] == '&' && input[*i + 1] == '&')
+			|| (input[*i] == '<' && input[*i + 1] == '<')
+			|| (input[*i] == '>' && input[*i + 1] == '>'))
+			(*i) += 2;
+		else
+			(*i)++;
+		*stype = TOK_STR;
+		return (ft_substr(input, start, *i - start));
+	}
+	read_word_token(input, i);
+	*stype = TOK_STR;
+	if (input[start] == '\'')
+		*stype = TOK_SING;
+	if (input[start] == '"')
+		*stype = TOK_DUP;
 	return (ft_substr(input, start, *i - start));
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_exit.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkhandaq <mkhandaq@student.42amman.com>    +#+  +:+       +#+        */
+/*   By: mkhandaq <mkhandaq@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 09:17:15 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/03/15 09:17:16 by mkhandaq         ###   ########.fr       */
+/*   Updated: 2026/04/11 17:08:35 by mkhandaq         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,16 @@ static int	count_args(t_token *node)
 	return (count);
 }
 
-int	builtin_exit(t_token *node)
+static int	exit_invalid_number(char *arg, int *should_exit)
+{
+	ft_putstr_fd("shellGuys: exit: ", 2);
+	ft_putstr_fd(arg, 2);
+	ft_putstr_fd(": numeric argument required\n", 2);
+	*should_exit = 1;
+	return (2);
+}
+
+int	builtin_exit(t_token *node, int *should_exit)
 {
 	int			argc;
 	long long	code;
@@ -82,20 +91,19 @@ int	builtin_exit(t_token *node)
 	ft_putstr_fd("exit\n", 2);
 	argc = count_args(node);
 	if (argc == 0)
-		exit(0);
+	{
+		*should_exit = 1;
+		return (0);
+	}
 	if (!ft_isnumeric(node->next->value)
 		|| !ft_atoll(node->next->value, &code))
-	{
-		ft_putstr_fd("shellGuys: exit: ", 2);
-		ft_putstr_fd(node->next->value, 2);
-		ft_putstr_fd(": numeric argument required\n", 2);
-		exit(2);
-	}
+		return (exit_invalid_number(node->next->value, should_exit));
 	if (argc > 1)
 	{
 		ft_putstr_fd("shellGuys: exit: too many arguments\n", 2);
+		*should_exit = 0;
 		return (1);
 	}
-	exit((unsigned char)code);
-	return (0);
+	*should_exit = 1;
+	return ((unsigned char)code);
 }

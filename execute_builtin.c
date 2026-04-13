@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execute_builtin.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkhandaq <mkhandaq@student.42amman.com>    +#+  +:+       +#+        */
+/*   By: mkhandaq <mkhandaq@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 09:15:57 by mkhandaq          #+#    #+#             */
-/*   Updated: 2026/03/15 09:15:58 by mkhandaq         ###   ########.fr       */
+/*   Updated: 2026/04/11 17:08:35 by mkhandaq         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,8 @@ static int	exec_cd(t_token *cmd, char ***env)
 	return (ret);
 }
 
-int	execute_builtin(t_token *list, char ***envp, int *last_exit)
+int	execute_builtin(t_token *list, char ***envp,
+		int *last_exit, int *should_exit)
 {
 	t_token	*cmd;
 
@@ -101,7 +102,7 @@ int	execute_builtin(t_token *list, char ***envp, int *last_exit)
 		return (exec_unset(cmd, envp));
 	if (cmd->type == TOK_EXIT)
 	{
-		*last_exit = builtin_exit(cmd);
+		*last_exit = builtin_exit(cmd, should_exit);
 		return (*last_exit);
 	}
 	return (-1);
